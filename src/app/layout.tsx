@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "YUMC 대나무숲",
-  description: "YUMC 동아리 회원을 위한 익명 제보 게시판",
+  description: "YUMC 동아리 회원을 위한 대나무숲 서비스",
 };
 
 export default function RootLayout({

@@ -16,7 +16,6 @@ function sessionSecret() {
   return (
     process.env.AUTH_SECRET ||
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.ADMIN_PASSWORD ||
     "dev-only-yumc-bamboo-secret"
   );
 }

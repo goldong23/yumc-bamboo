@@ -27,7 +27,7 @@ export function MemberLoginForm() {
       </label>
       {state.message ? <p className="form-message">{state.message}</p> : null}
       <ActionButton className="primary-button" pendingText="확인 중">
-        입장하기
+        숲으로 들어가기
       </ActionButton>
     </form>
   );

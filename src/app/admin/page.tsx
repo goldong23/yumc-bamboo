@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AdminLoginForm } from "@/components/admin-login-form";
+import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publishPost, rejectPost, signOutAdmin } from "@/app/actions";
@@ -57,11 +57,13 @@ function formatDate(value: string | null) {
 }
 
 function AdminPostCard({ post, mode }: { post: Post; mode: "pending" | "published" }) {
+  const displayName = post.is_anonymous ? "익명 선택" : `비익명: ${post.author_name ?? "이름 없음"}`;
+
   return (
     <article className="admin-post-card">
       <div className="post-meta">
         <span>{categoryLabels[post.category] ?? post.category}</span>
-        <span>{post.is_anonymous ? "익명" : post.author_name ?? "비익명"}</span>
+        <span>{displayName}</span>
         <time>{formatDate(mode === "pending" ? post.created_at : post.published_at)}</time>
       </div>
       <p>{post.content}</p>
@@ -89,18 +91,7 @@ export default async function AdminPage() {
   const session = await getAdminSession();
 
   if (!session?.admin) {
-    return (
-      <main className="admin-shell">
-        <section className="admin-auth-panel">
-          <Link className="admin-link" href="/">
-            사이트로
-          </Link>
-          <p className="eyebrow">Moderation</p>
-          <h1>관리자 페이지</h1>
-          <AdminLoginForm />
-        </section>
-      </main>
-    );
+    redirect("/");
   }
 
   const { pending, published, error } = await getAdminPosts();

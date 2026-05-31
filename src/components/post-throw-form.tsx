@@ -12,27 +12,18 @@ export function PostThrowForm() {
 
   useEffect(() => {
     if (!launching) return;
-    const timeout = window.setTimeout(() => setLaunching(false), 900);
+    const timeout = window.setTimeout(() => setLaunching(false), 1150);
     return () => window.clearTimeout(timeout);
   }, [launching]);
 
   return (
-    <div className="throw-zone">
-      <div className="voxel-stage" aria-hidden="true">
-        <div className="sun-block" />
-        <div className="bamboo bamboo-a" />
-        <div className="bamboo bamboo-b" />
-        <div className="bamboo bamboo-c" />
-        <div className={launching ? "paper-cube launched" : "paper-cube"} />
-        <div className="ground-row" />
-      </div>
-
+    <div className={launching ? "paper-desk throwing" : "paper-desk"}>
       <form
         action={formAction}
-        className="throw-form"
+        className="paper-form"
         onSubmit={() => setLaunching(true)}
       >
-        <div className="form-grid">
+        <div className="paper-top">
           <label>
             <span>분류</span>
             <select name="category" defaultValue="general">
@@ -57,22 +48,22 @@ export function PostThrowForm() {
           </fieldset>
         </div>
 
-        <label>
-          <span>대나무숲에 던질 글</span>
+        <label className="paper-body">
+          <span>종이에 남길 말</span>
           <textarea
             maxLength={1200}
             minLength={5}
             name="content"
-            placeholder="검수 후 게시됩니다."
+            placeholder="여기에 적은 글은 관리자 검수 후 대나무숲에 올라갑니다."
             required
-            rows={8}
+            rows={11}
           />
         </label>
 
         {state.message ? <p className="form-message">{state.message}</p> : null}
 
-        <ActionButton className="primary-button wide" pendingText="던지는 중">
-          대나무숲에 던지기
+        <ActionButton className="throw-button" pendingText="던지는 중">
+          멀리 던지기
         </ActionButton>
       </form>
     </div>

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { verifyMember } from "@/lib/members";
+import { isAdminMemberHash, verifyMember } from "@/lib/members";
 import {
   clearAdminSession,
   clearMemberSession,
@@ -45,6 +45,12 @@ export async function signInMember(
   const result = verifyMember(name, studentId);
   if (!result.ok) {
     return { message: "동아리 명단에서 확인되지 않았습니다." };
+  }
+
+  if (isAdminMemberHash(result.hash)) {
+    await setAdminSession();
+    revalidatePath("/admin");
+    redirect("/admin");
   }
 
   await setMemberSession({
@@ -107,30 +113,11 @@ export async function submitPost(
   redirect("/?submitted=1");
 }
 
-export async function signInAdmin(
-  prevState: ActionState,
-  formData: FormData
-): Promise<ActionState> {
-  void prevState;
-  const configuredPassword = process.env.ADMIN_PASSWORD;
-  if (!configuredPassword) {
-    return { message: "Vercel 환경변수 ADMIN_PASSWORD를 먼저 설정해 주세요." };
-  }
-
-  const password = textValue(formData, "password");
-  if (password !== configuredPassword) {
-    return { message: "관리자 비밀번호가 맞지 않습니다." };
-  }
-
-  await setAdminSession();
-  revalidatePath("/admin");
-  redirect("/admin");
-}
-
 export async function signOutAdmin() {
   await clearAdminSession();
+  revalidatePath("/");
   revalidatePath("/admin");
-  redirect("/admin");
+  redirect("/");
 }
 
 async function requireAdmin() {
