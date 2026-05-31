@@ -1,65 +1,128 @@
-import Image from "next/image";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { getMemberSession } from "@/lib/session";
+import { signOutMember } from "@/app/actions";
+import { MemberLoginForm } from "@/components/member-login-form";
+import { PostThrowForm } from "@/components/post-throw-form";
+import type { Post } from "@/types/database";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+const categoryLabels: Record<string, string> = {
+  general: "일반",
+  question: "질문",
+  confession: "고백/하소연",
+  humor: "유머",
+  event: "행사/모임",
+};
+
+async function getPublishedPosts() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return { posts: [] as Post[], error: "Supabase 환경변수가 필요합니다." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("status", "published")
+    .order("is_pinned", { ascending: false })
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  return { posts: data ?? [], error: error?.message ?? "" };
+}
+
+function formatDate(value: string | null) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: Promise<{ submitted?: string }>;
+}) {
+  const params = await searchParams;
+  const session = await getMemberSession();
+  const { posts, error } = await getPublishedPosts();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="site-shell">
+      <section className="forest-panel">
+        <div className="top-bar">
+          <div>
+            <p className="eyebrow">YUMC Bamboo</p>
+            <h1>대나무숲</h1>
+          </div>
+          <Link className="admin-link" href="/admin">
+            관리자
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {params?.submitted ? (
+          <div className="notice">글이 대나무숲에 던져졌습니다. 관리자 검수 후 게시됩니다.</div>
+        ) : null}
+
+        <div className="main-grid">
+          <section className="entry-panel">
+            {session ? (
+              <>
+                <div className="member-row">
+                  <div>
+                    <p className="eyebrow">입장 완료</p>
+                    <h2>{session.name} 님</h2>
+                  </div>
+                  <form action={signOutMember}>
+                    <button className="ghost-button" type="submit">
+                      나가기
+                    </button>
+                  </form>
+                </div>
+                <PostThrowForm />
+              </>
+            ) : (
+              <div className="gate">
+                <p className="eyebrow">회원 확인</p>
+                <h2>이름과 학번으로 입장</h2>
+                <MemberLoginForm />
+              </div>
+            )}
+          </section>
+
+          <section className="feed-panel">
+            <div className="section-heading">
+              <p className="eyebrow">검수 완료</p>
+              <h2>올라온 글</h2>
+            </div>
+
+            {error ? <p className="form-message">{error}</p> : null}
+
+            <div className="post-list">
+              {posts.length ? (
+                posts.map((post) => (
+                  <article className="post-card" key={post.id}>
+                    <div className="post-meta">
+                      <span>{categoryLabels[post.category] ?? post.category}</span>
+                      <span>{post.is_anonymous ? "익명" : post.author_name ?? "비익명"}</span>
+                      <time>{formatDate(post.published_at ?? post.created_at)}</time>
+                    </div>
+                    <p>{post.content}</p>
+                  </article>
+                ))
+              ) : (
+                <div className="empty-state">아직 게시된 글이 없습니다.</div>
+              )}
+            </div>
+          </section>
         </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }

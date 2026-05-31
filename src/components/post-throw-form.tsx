@@ -1,0 +1,80 @@
+"use client";
+
+import { useActionState, useEffect, useState } from "react";
+import { submitPost } from "@/app/actions";
+import { ActionButton } from "@/components/action-button";
+
+const initialState = { message: "" };
+
+export function PostThrowForm() {
+  const [state, formAction] = useActionState(submitPost, initialState);
+  const [launching, setLaunching] = useState(false);
+
+  useEffect(() => {
+    if (!launching) return;
+    const timeout = window.setTimeout(() => setLaunching(false), 900);
+    return () => window.clearTimeout(timeout);
+  }, [launching]);
+
+  return (
+    <div className="throw-zone">
+      <div className="voxel-stage" aria-hidden="true">
+        <div className="sun-block" />
+        <div className="bamboo bamboo-a" />
+        <div className="bamboo bamboo-b" />
+        <div className="bamboo bamboo-c" />
+        <div className={launching ? "paper-cube launched" : "paper-cube"} />
+        <div className="ground-row" />
+      </div>
+
+      <form
+        action={formAction}
+        className="throw-form"
+        onSubmit={() => setLaunching(true)}
+      >
+        <div className="form-grid">
+          <label>
+            <span>분류</span>
+            <select name="category" defaultValue="general">
+              <option value="general">일반</option>
+              <option value="question">질문</option>
+              <option value="confession">고백/하소연</option>
+              <option value="humor">유머</option>
+              <option value="event">행사/모임</option>
+            </select>
+          </label>
+
+          <fieldset>
+            <legend>표시 방식</legend>
+            <label className="radio-card">
+              <input defaultChecked name="visibility" type="radio" value="anonymous" />
+              <span>익명</span>
+            </label>
+            <label className="radio-card">
+              <input name="visibility" type="radio" value="named" />
+              <span>비익명</span>
+            </label>
+          </fieldset>
+        </div>
+
+        <label>
+          <span>대나무숲에 던질 글</span>
+          <textarea
+            maxLength={1200}
+            minLength={5}
+            name="content"
+            placeholder="검수 후 게시됩니다."
+            required
+            rows={8}
+          />
+        </label>
+
+        {state.message ? <p className="form-message">{state.message}</p> : null}
+
+        <ActionButton className="primary-button wide" pendingText="던지는 중">
+          대나무숲에 던지기
+        </ActionButton>
+      </form>
+    </div>
+  );
+}

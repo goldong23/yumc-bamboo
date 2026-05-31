@@ -11,10 +11,17 @@ create table if not exists posts (
   status      text not null default 'pending'
                 check (status in ('pending', 'published', 'rejected')),
   is_pinned   boolean not null default false,
+  is_anonymous boolean not null default true,
+  author_name text,
   anon_token  text,
   created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now()
+  updated_at  timestamptz not null default now(),
+  published_at timestamptz
 );
+
+alter table posts add column if not exists is_anonymous boolean not null default true;
+alter table posts add column if not exists author_name text;
+alter table posts add column if not exists published_at timestamptz;
 
 -- updated_at 자동 갱신 트리거
 create or replace function update_updated_at()
