@@ -12,7 +12,7 @@ export function PostThrowForm() {
 
   useEffect(() => {
     if (!launching) return;
-    const timeout = window.setTimeout(() => setLaunching(false), 1150);
+    const timeout = window.setTimeout(() => setLaunching(false), 1300);
     return () => window.clearTimeout(timeout);
   }, [launching]);
 
@@ -63,7 +63,7 @@ export function PostThrowForm() {
         {state.message ? <p className="form-message">{state.message}</p> : null}
 
         <ActionButton className="throw-button" pendingText="던지는 중">
-          멀리 던지기
+          구겨서 던지기
         </ActionButton>
       </form>
     </div>

@@ -23,11 +23,8 @@ function textValue(formData: FormData, key: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function requireSupabaseEnv() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return "Supabase 환경변수가 아직 설정되지 않았습니다.";
-  }
-  return "";
+function hasSupabaseEnv() {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
 
 export async function signInMember(
@@ -73,8 +70,10 @@ export async function submitPost(
   formData: FormData
 ): Promise<ActionState> {
   void prevState;
-  const envError = requireSupabaseEnv();
-  if (envError) return { message: envError };
+
+  if (!hasSupabaseEnv()) {
+    return { message: "아직 게시함이 연결되지 않았습니다. Vercel 환경변수를 확인해 주세요." };
+  }
 
   const session = await getMemberSession();
   if (!session) {
@@ -110,6 +109,7 @@ export async function submitPost(
   }
 
   revalidatePath("/");
+  revalidatePath("/board");
   redirect("/?submitted=1");
 }
 
@@ -138,6 +138,7 @@ export async function publishPost(formData: FormData) {
     .eq("id", id);
 
   revalidatePath("/");
+  revalidatePath("/board");
   revalidatePath("/admin");
 }
 

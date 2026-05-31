@@ -20,7 +20,7 @@ async function getAdminPosts() {
     return {
       pending: [] as Post[],
       published: [] as Post[],
-      error: "Supabase 관리자 환경변수가 필요합니다.",
+      setupNeeded: true,
     };
   }
 
@@ -42,6 +42,7 @@ async function getAdminPosts() {
   return {
     pending: pending.data ?? [],
     published: published.data ?? [],
+    setupNeeded: false,
     error: pending.error?.message ?? published.error?.message ?? "",
   };
 }
@@ -94,7 +95,7 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  const { pending, published, error } = await getAdminPosts();
+  const { pending, published, setupNeeded, error } = await getAdminPosts();
 
   return (
     <main className="admin-shell">
@@ -105,8 +106,11 @@ export default async function AdminPage() {
             <h1>관리자 검수</h1>
           </div>
           <div className="admin-nav">
+            <Link className="admin-link" href="/board">
+              게시판
+            </Link>
             <Link className="admin-link" href="/">
-              사이트로
+              글쓰기
             </Link>
             <form action={signOutAdmin}>
               <button className="ghost-button" type="submit">
@@ -116,6 +120,12 @@ export default async function AdminPage() {
           </div>
         </div>
 
+        {setupNeeded ? (
+          <p className="setup-note">
+            검수함을 불러오려면 Vercel 환경변수에 Supabase URL, anon key, service role key를
+            등록해야 합니다.
+          </p>
+        ) : null}
         {error ? <p className="form-message">{error}</p> : null}
 
         <div className="admin-columns">

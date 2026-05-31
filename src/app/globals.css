@@ -16,8 +16,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-gowun-dodum);
+  --font-serif: var(--font-gowun-batang);
 }
 
 * {
@@ -33,7 +33,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-gowun-dodum), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 }
 
 button,
@@ -57,11 +57,13 @@ a {
   text-decoration: none;
 }
 
-.bamboo-page {
+.bamboo-page,
+.board-page,
+.admin-shell {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 50% 42%, rgba(255, 246, 198, 0.1), rgba(0, 0, 0, 0.55) 58%),
-    linear-gradient(180deg, rgba(3, 19, 12, 0.18), rgba(3, 19, 12, 0.72)),
+    radial-gradient(circle at 50% 42%, rgba(255, 246, 198, 0.08), rgba(0, 0, 0, 0.58) 62%),
+    linear-gradient(180deg, rgba(3, 19, 12, 0.16), rgba(3, 19, 12, 0.74)),
     url("/bamboo-forest-bg.png") center / cover fixed;
 }
 
@@ -70,8 +72,8 @@ a {
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 22px;
-  padding: clamp(18px, 4vw, 48px);
+  gap: 18px;
+  padding: clamp(18px, 3vw, 42px);
 }
 
 .brand-lockup {
@@ -82,16 +84,18 @@ a {
 .brand-lockup p,
 .eyebrow {
   margin: 0 0 8px;
-  font-size: 0.8rem;
-  font-weight: 900;
+  font-size: 0.78rem;
+  font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
 }
 
 .brand-lockup h1 {
   margin: 0;
-  font-size: clamp(3.2rem, 9vw, 8.5rem);
-  line-height: 0.9;
+  font-family: var(--font-gowun-batang), serif;
+  font-size: clamp(2.7rem, 6.2vw, 6.2rem);
+  font-weight: 700;
+  line-height: 0.96;
   letter-spacing: 0;
 }
 
@@ -102,7 +106,7 @@ a {
   padding: 26px;
   border: 1px solid rgba(255, 248, 229, 0.5);
   border-radius: 8px;
-  background: rgba(255, 248, 229, 0.9);
+  background: rgba(255, 248, 229, 0.91);
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
   backdrop-filter: blur(10px);
 }
@@ -110,8 +114,9 @@ a {
 .login-card h2 {
   margin: 0 0 22px;
   color: var(--ink);
-  font-size: 1.55rem;
-  line-height: 1.35;
+  font-family: var(--font-gowun-batang), serif;
+  font-size: 1.48rem;
+  line-height: 1.42;
   letter-spacing: 0;
 }
 
@@ -119,6 +124,20 @@ a {
 .paper-form {
   display: grid;
   gap: 14px;
+}
+
+.secondary-link {
+  display: inline-flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  border: 1px solid rgba(18, 61, 36, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.42);
+  color: var(--leaf-dark);
+  font-weight: 700;
 }
 
 label,
@@ -131,7 +150,7 @@ label span,
 legend {
   color: #31422c;
   font-size: 0.86rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 input,
@@ -152,7 +171,7 @@ select {
 }
 
 textarea {
-  min-height: 280px;
+  min-height: 300px;
   resize: vertical;
   padding: 14px;
   border: 0;
@@ -164,6 +183,8 @@ textarea {
       rgba(94, 74, 38, 0.13) 31px
     ),
     transparent;
+  font-family: var(--font-gowun-batang), serif;
+  font-size: 1.05rem;
   line-height: 31px;
 }
 
@@ -185,7 +206,7 @@ textarea:focus {
   justify-content: center;
   border-radius: 6px;
   border: 0;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .primary-button,
@@ -205,7 +226,7 @@ textarea:focus {
 .ghost-button,
 .admin-link {
   border: 1px solid rgba(255, 248, 229, 0.55);
-  background: rgba(255, 248, 229, 0.72);
+  background: rgba(255, 248, 229, 0.74);
   color: var(--leaf-dark);
   padding: 0 14px;
 }
@@ -220,10 +241,11 @@ textarea:focus {
 
 .toast,
 .form-message,
-.empty-state {
+.empty-state,
+.setup-note {
   border-radius: 6px;
   padding: 12px 14px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .toast {
@@ -231,7 +253,7 @@ textarea:focus {
   top: 24px;
   right: 24px;
   max-width: 360px;
-  background: rgba(255, 248, 229, 0.92);
+  background: rgba(255, 248, 229, 0.94);
   color: var(--leaf-dark);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
 }
@@ -243,18 +265,18 @@ textarea:focus {
   color: var(--danger);
 }
 
-.writing-layout {
-  align-self: end;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.58fr);
-  gap: 20px;
-  align-items: end;
+.setup-note {
+  margin: 0 0 18px;
+  background: rgba(238, 247, 231, 0.92);
+  border: 1px solid rgba(18, 61, 36, 0.16);
+  color: var(--leaf-dark);
 }
 
 .writer-panel {
-  min-height: 620px;
+  align-self: center;
+  justify-self: center;
+  width: min(760px, 100%);
   display: grid;
-  align-content: end;
   gap: 16px;
 }
 
@@ -270,32 +292,76 @@ textarea:focus {
 .writer-head h2,
 .section-heading h2 {
   margin: 0;
+  font-family: var(--font-gowun-batang), serif;
   font-size: 1.5rem;
   letter-spacing: 0;
+}
+
+.writer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .paper-desk {
   position: relative;
   width: min(720px, 100%);
-  transform-origin: 50% 92%;
+  margin: 0 auto;
+  transform-origin: 50% 75%;
+  will-change: transform, opacity;
 }
 
 .paper-desk.throwing {
-  animation: paperThrow 1.1s cubic-bezier(0.2, 0.76, 0.3, 1) forwards;
+  animation: tossCrumpledPaper 1.28s cubic-bezier(0.18, 0.78, 0.25, 1) forwards;
 }
 
-@keyframes paperThrow {
+.paper-desk.throwing .paper-form {
+  animation: crumplePaper 1.28s ease-in-out forwards;
+}
+
+@keyframes tossCrumpledPaper {
   0% {
     transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
     opacity: 1;
   }
+  20% {
+    transform: translate3d(0, 12px, 0) rotate(-2deg) scale(0.82);
+    opacity: 1;
+  }
   48% {
-    transform: translate3d(28vw, -24vh, 0) rotate(16deg) scale(0.7);
-    opacity: 0.95;
+    transform: translate3d(10vw, -16vh, 0) rotate(74deg) scale(0.44);
+    opacity: 0.96;
+  }
+  72% {
+    transform: translate3d(27vw, -8vh, 0) rotate(210deg) scale(0.21);
+    opacity: 0.78;
   }
   100% {
-    transform: translate3d(62vw, -42vh, 0) rotate(34deg) scale(0.18);
+    transform: translate3d(40vw, 12vh, 0) rotate(390deg) scale(0.04);
     opacity: 0;
+  }
+}
+
+@keyframes crumplePaper {
+  0% {
+    border-radius: 3px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    filter: none;
+  }
+  22% {
+    border-radius: 18px 40px 26px 36px;
+    clip-path: polygon(12% 6%, 88% 3%, 96% 82%, 68% 96%, 9% 88%, 3% 28%);
+    filter: brightness(0.94) contrast(1.08);
+  }
+  46% {
+    border-radius: 999px 70% 999px 80%;
+    clip-path: polygon(22% 12%, 78% 8%, 92% 42%, 76% 86%, 31% 91%, 7% 56%);
+    filter: brightness(0.86) contrast(1.22);
+  }
+  100% {
+    border-radius: 999px;
+    clip-path: polygon(37% 18%, 70% 21%, 84% 51%, 60% 80%, 28% 72%, 17% 42%);
+    filter: brightness(0.76) contrast(1.32);
   }
 }
 
@@ -304,7 +370,8 @@ textarea:focus {
   padding: clamp(18px, 3vw, 32px);
   border-radius: 3px;
   background:
-    linear-gradient(90deg, rgba(121, 75, 42, 0.12), transparent 18%),
+    linear-gradient(130deg, rgba(121, 75, 42, 0.12), transparent 28%),
+    linear-gradient(250deg, rgba(222, 207, 159, 0.34), transparent 34%),
     var(--paper);
   box-shadow:
     0 20px 45px rgba(0, 0, 0, 0.34),
@@ -328,7 +395,7 @@ textarea:focus {
   bottom: 18px;
   width: 46px;
   height: 46px;
-  background: linear-gradient(135deg, transparent 50%, rgba(222, 207, 159, 0.9) 51%);
+  background: linear-gradient(135deg, transparent 50%, rgba(222, 207, 159, 0.92) 51%);
   box-shadow: -4px -4px 10px rgba(76, 54, 26, 0.08);
 }
 
@@ -370,16 +437,41 @@ legend {
   gap: 2px;
 }
 
-.forest-feed {
-  max-height: 72vh;
-  overflow: auto;
-  padding: 18px;
-  border: 1px solid rgba(255, 248, 229, 0.45);
+.board-page,
+.admin-shell {
+  padding: 24px;
+}
+
+.board-panel,
+.admin-dashboard {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 22px;
+  border: 1px solid rgba(255, 248, 229, 0.48);
   border-radius: 8px;
-  background: rgba(10, 35, 20, 0.72);
-  color: #fff8e5;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  background: rgba(255, 248, 229, 0.9);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.32);
+}
+
+.top-bar,
+.admin-nav,
+.admin-actions {
+  display: flex;
+  align-items: center;
+}
+
+.top-bar {
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.top-bar h1 {
+  margin: 0;
+  font-family: var(--font-gowun-batang), serif;
+  font-size: clamp(2rem, 4vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: 0;
 }
 
 .section-heading {
@@ -392,12 +484,16 @@ legend {
   gap: 12px;
 }
 
+.board-list {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
 .post-card,
 .admin-post-card,
 .empty-state {
-  border: 1px solid rgba(255, 248, 229, 0.35);
+  border: 1px solid rgba(18, 61, 36, 0.16);
   border-radius: 8px;
-  background: rgba(255, 248, 229, 0.9);
+  background: rgba(255, 253, 242, 0.92);
   color: var(--ink);
 }
 
@@ -419,7 +515,7 @@ legend {
   gap: 8px;
   color: #41604a;
   font-size: 0.8rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .post-meta span,
@@ -431,43 +527,6 @@ legend {
 
 .empty-state {
   color: #41604a;
-}
-
-.admin-shell {
-  min-height: 100vh;
-  padding: 24px;
-  background:
-    linear-gradient(180deg, rgba(6, 25, 14, 0.72), rgba(6, 25, 14, 0.86)),
-    url("/bamboo-forest-bg.png") center / cover fixed;
-}
-
-.admin-dashboard {
-  width: min(1180px, 100%);
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 8px;
-  background: rgba(255, 248, 229, 0.9);
-  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.32);
-}
-
-.top-bar,
-.admin-nav,
-.admin-actions {
-  display: flex;
-  align-items: center;
-}
-
-.top-bar {
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.top-bar h1 {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 4.6rem);
-  line-height: 0.95;
-  letter-spacing: 0;
 }
 
 .admin-nav,
@@ -492,14 +551,9 @@ legend {
     padding: 18px;
   }
 
-  .writing-layout,
-  .admin-columns,
-  .paper-top {
+  .paper-top,
+  .admin-columns {
     grid-template-columns: 1fr;
-  }
-
-  .writer-panel {
-    min-height: auto;
   }
 
   .writer-head,
@@ -508,8 +562,15 @@ legend {
     flex-direction: column;
   }
 
-  .forest-feed {
-    max-height: none;
+  .writer-actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .writer-actions .ghost-button,
+  .writer-actions form {
+    width: 100%;
   }
 
   .toast {
