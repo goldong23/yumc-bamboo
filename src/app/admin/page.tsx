@@ -128,7 +128,7 @@ function AdminPostCard({
             </form>
           </>
         ) : null}
-        <ConfirmDeletePost postId={post.id} />
+        {mode === "published" ? <ConfirmDeletePost postId={post.id} /> : null}
       </div>
 
       {comments.length ? (

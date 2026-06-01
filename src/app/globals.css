@@ -635,6 +635,7 @@ legend {
 
 .post-meta {
   display: flex;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 8px;
   color: #41604a;
@@ -644,9 +645,39 @@ legend {
 
 .post-meta span,
 .post-meta time {
+  display: inline-flex;
+  min-height: 27px;
+  align-items: center;
   padding: 4px 8px;
   border-radius: 4px;
   background: #eef7e7;
+  line-height: 1.2;
+}
+
+.category-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -10px 0 18px;
+}
+
+.category-chip {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(18, 61, 36, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.56);
+  color: var(--leaf-dark);
+  padding: 0 14px;
+  font-weight: 700;
+}
+
+.category-chip.active {
+  background: #1d5b32;
+  color: #fff8e5;
 }
 
 .empty-state {
@@ -670,6 +701,10 @@ legend {
 .like-button,
 .like-count {
   min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: 1px solid rgba(18, 61, 36, 0.18);
   border-radius: 999px;
   background: rgba(238, 247, 231, 0.85);

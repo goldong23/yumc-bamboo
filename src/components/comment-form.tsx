@@ -14,7 +14,7 @@ export function CommentForm({ postId }: { postId: string }) {
       <input name="postId" type="hidden" value={postId} />
       <textarea
         maxLength={500}
-        minLength={2}
+        minLength={1}
         name="content"
         placeholder="댓글을 남겨보세요."
         required

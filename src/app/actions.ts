@@ -89,8 +89,8 @@ export async function submitPost(
   const category = textValue(formData, "category") || "general";
   const visibility = textValue(formData, "visibility") || "anonymous";
 
-  if (content.length < 5) {
-    return { message: "본문은 5자 이상 입력해 주세요." };
+  if (content.length < 1) {
+    return { message: "본문은 1자 이상 입력해 주세요." };
   }
 
   if (content.length > 1200) {
@@ -142,8 +142,8 @@ export async function submitComment(
     return { message: "게시글을 찾을 수 없습니다." };
   }
 
-  if (content.length < 2) {
-    return { message: "댓글은 2자 이상 입력해 주세요." };
+  if (content.length < 1) {
+    return { message: "댓글은 1자 이상 입력해 주세요." };
   }
 
   if (content.length > 500) {

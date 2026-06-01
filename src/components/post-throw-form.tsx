@@ -53,7 +53,7 @@ export function PostThrowForm() {
           <span>종이에 남길 말</span>
           <textarea
             maxLength={1200}
-            minLength={5}
+            minLength={1}
             name="content"
             placeholder="여기에 적은 글은 관리자 검수 후 대나무숲에 올라갑니다."
             required

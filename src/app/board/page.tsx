@@ -15,22 +15,47 @@ const categoryLabels: Record<string, string> = {
   event: "행사/모임",
 };
 
+const categoryOptions = [
+  ["all", "전체"],
+  ["general", "일반"],
+  ["question", "질문"],
+  ["confession", "고백/하소연"],
+  ["humor", "유머"],
+  ["event", "행사/모임"],
+] as const;
+
 type BoardData = {
   posts: Post[];
   comments: Comment[];
   reactions: Reaction[];
 };
 
-async function getBoardData(): Promise<BoardData> {
+type BoardPageProps = {
+  searchParams?: Promise<{
+    category?: string;
+  }>;
+};
+
+function normalizeCategoryFilter(category?: string) {
+  return category && category in categoryLabels ? category : "all";
+}
+
+async function getBoardData(category: string): Promise<BoardData> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return { posts: [], comments: [], reactions: [] };
   }
 
   const supabase = await createClient();
-  const postsResult = await supabase
+  let postsQuery = supabase
     .from("posts")
     .select("*")
-    .eq("status", "published")
+    .eq("status", "published");
+
+  if (category !== "all") {
+    postsQuery = postsQuery.eq("category", category);
+  }
+
+  const postsResult = await postsQuery
     .order("is_pinned", { ascending: false })
     .order("published_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
@@ -74,9 +99,11 @@ function publicAuthor(isAnonymous: boolean, authorName: string | null) {
   return isAnonymous ? "익명" : authorName ?? "비익명";
 }
 
-export default async function BoardPage() {
+export default async function BoardPage({ searchParams }: BoardPageProps) {
+  const params = await searchParams;
+  const activeCategory = normalizeCategoryFilter(params?.category);
   const session = await getMemberSession();
-  const { posts, comments, reactions } = await getBoardData();
+  const { posts, comments, reactions } = await getBoardData(activeCategory);
 
   return (
     <main className="board-page">
@@ -90,6 +117,24 @@ export default async function BoardPage() {
             종이 쓰러 가기
           </Link>
         </div>
+
+        <nav className="category-filter" aria-label="게시글 분류">
+          {categoryOptions.map(([value, label]) => {
+            const href = value === "all" ? "/board" : `/board?category=${value}`;
+            const selected = activeCategory === value;
+
+            return (
+              <Link
+                aria-current={selected ? "page" : undefined}
+                className={selected ? "category-chip active" : "category-chip"}
+                href={href}
+                key={value}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
 
         <div className="post-list board-list">
           {posts.length ? (
@@ -113,12 +158,20 @@ export default async function BoardPage() {
                     {session ? (
                       <form action={togglePostLike}>
                         <input name="postId" type="hidden" value={post.id} />
-                        <button className={liked ? "like-button liked" : "like-button"} type="submit">
-                          좋아요 {postReactions.length}
+                        <button
+                          aria-label={liked ? "좋아요 취소" : "좋아요"}
+                          className={liked ? "like-button liked" : "like-button"}
+                          type="submit"
+                        >
+                          <span aria-hidden="true">👍</span>
+                          <span>{postReactions.length}</span>
                         </button>
                       </form>
                     ) : (
-                      <span className="like-count">좋아요 {postReactions.length}</span>
+                      <span className="like-count">
+                        <span aria-hidden="true">👍</span>
+                        <span>{postReactions.length}</span>
+                      </span>
                     )}
                     <span>댓글 {postComments.length}</span>
                   </div>
