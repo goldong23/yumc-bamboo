@@ -3,8 +3,8 @@ import "server-only";
 import { createHash } from "crypto";
 import memberData from "@/data/member-hashes.json";
 
-const ADMIN_MEMBER_HASH =
-  "ce934586f51a36fb0807006c698f392fa29b32198d1d67ebf7cbdccedb703512";
+const ADMIN_NAME = "관리자";
+const ADMIN_STUDENT_ID = "09233333";
 
 function normalizeName(name: string) {
   return name.replace(/\s+/g, "").trim().toLowerCase();
@@ -28,8 +28,11 @@ export function verifyMember(name: string, studentId: string) {
   };
 }
 
-export function isAdminMemberHash(hash: string) {
-  return hash === ADMIN_MEMBER_HASH;
+export function isAdminCredential(name: string, studentId: string) {
+  return (
+    normalizeName(name) === normalizeName(ADMIN_NAME) &&
+    normalizeStudentId(studentId) === ADMIN_STUDENT_ID
+  );
 }
 
 export const memberCount = memberData.count;

@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdminMemberHash, normalizeStudentId, verifyMember } from "@/lib/members";
+import {
+  hashMemberCredential,
+  isAdminCredential,
+  normalizeStudentId,
+  verifyMember,
+} from "@/lib/members";
 import {
   clearAdminSession,
   clearMemberSession,
@@ -43,15 +48,23 @@ export async function signInMember(
     return { message: "이름과 학번을 모두 입력해 주세요." };
   }
 
+  if (isAdminCredential(name, studentId)) {
+    await setAdminSession();
+    await setMemberSession({
+      name: "관리자",
+      studentId,
+      memberHash: hashMemberCredential(name, studentId),
+    });
+
+    revalidatePath("/");
+    revalidatePath("/board");
+    revalidatePath("/admin");
+    redirect("/admin");
+  }
+
   const result = verifyMember(name, studentId);
   if (!result.ok) {
     return { message: "동아리 명단에서 확인되지 않았습니다." };
-  }
-
-  if (isAdminMemberHash(result.hash)) {
-    await setAdminSession();
-    revalidatePath("/admin");
-    redirect("/admin");
   }
 
   await setMemberSession({
@@ -229,7 +242,9 @@ export async function setPostLike(formData: FormData) {
 
 export async function signOutAdmin() {
   await clearAdminSession();
+  await clearMemberSession();
   revalidatePath("/");
+  revalidatePath("/board");
   revalidatePath("/admin");
   redirect("/");
 }
