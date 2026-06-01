@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getMemberSession } from "@/lib/session";
+import { getAdminSession, getMemberSession } from "@/lib/session";
 import { signOutMember } from "@/app/actions";
 import { DeliveryToast } from "@/components/delivery-toast";
 import { MemberLoginForm } from "@/components/member-login-form";
@@ -14,6 +14,7 @@ export default async function Home({
 }) {
   const params = await searchParams;
   const session = await getMemberSession();
+  const adminSession = await getAdminSession();
 
   return (
     <main className="bamboo-page">
@@ -42,6 +43,11 @@ export default async function Home({
                 <h2>{session.name} 님의 종이</h2>
               </div>
               <div className="writer-actions">
+                {adminSession?.admin ? (
+                  <Link className="ghost-button" href="/admin">
+                    관리자 페이지
+                  </Link>
+                ) : null}
                 <Link className="ghost-button" href="/board">
                   게시판으로 가기
                 </Link>
