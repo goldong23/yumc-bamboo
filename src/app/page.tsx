@@ -28,7 +28,7 @@ export default async function Home({
         {!session ? (
           <div className="login-card">
             <p className="eyebrow">회원 확인</p>
-            <h2>이름과 학번을 적고 숲으로 들어오세요.</h2>
+            <h2>대나무숲에 어서오세요.</h2>
             <MemberLoginForm />
             <Link className="secondary-link" href="/board">
               게시판으로 가기
