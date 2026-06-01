@@ -239,7 +239,7 @@ textarea:focus {
   padding: 0 14px;
 }
 
-.toast,
+.delivery-toast,
 .form-message,
 .empty-state,
 .setup-note {
@@ -248,14 +248,41 @@ textarea:focus {
   font-weight: 700;
 }
 
-.toast {
+.delivery-toast {
   position: absolute;
-  top: 24px;
-  right: 24px;
-  max-width: 360px;
+  left: 50%;
+  top: 50%;
+  z-index: 20;
+  width: min(420px, calc(100% - 36px));
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 248, 229, 0.94);
   color: var(--leaf-dark);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.34);
+  text-align: center;
+  transform: translate(-50%, -50%);
+  animation: deliveryToastIn 0.22s ease-out;
+}
+
+.delivery-toast.hiding {
+  opacity: 0;
+  transform: translate(-50%, -54%);
+  transition:
+    opacity 0.42s ease,
+    transform 0.42s ease;
+}
+
+@keyframes deliveryToastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .form-message {
@@ -320,9 +347,9 @@ textarea:focus {
 .mailbox {
   position: absolute;
   right: 50%;
-  bottom: 92px;
-  width: 156px;
-  height: 96px;
+  bottom: 70px;
+  width: 220px;
+  height: 136px;
   opacity: 0;
   transform: translateX(50%) translateY(18px) scale(0.9);
 }
@@ -333,8 +360,8 @@ textarea:focus {
   left: 0;
   right: 0;
   bottom: 22px;
-  height: 74px;
-  border-radius: 54px 54px 8px 8px;
+  height: 108px;
+  border-radius: 76px 76px 10px 10px;
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent 34%),
     #bf2d2d;
@@ -345,30 +372,30 @@ textarea:focus {
 
 .mailbox-door {
   position: absolute;
-  left: 20px;
-  right: 20px;
-  top: 46px;
-  height: 10px;
+  left: 28px;
+  right: 28px;
+  top: 65px;
+  height: 14px;
   border-radius: 999px;
   background: rgba(42, 8, 8, 0.5);
 }
 
 .mailbox-post {
   position: absolute;
-  left: calc(50% - 12px);
-  bottom: -70px;
-  width: 24px;
-  height: 92px;
+  left: calc(50% - 15px);
+  bottom: -92px;
+  width: 30px;
+  height: 122px;
   background: #6b4a2f;
   box-shadow: inset -5px 0 rgba(0, 0, 0, 0.16);
 }
 
 .mailbox-flag {
   position: absolute;
-  right: 18px;
-  top: 12px;
-  width: 40px;
-  height: 28px;
+  right: 24px;
+  top: 16px;
+  width: 54px;
+  height: 36px;
   border-radius: 4px;
   background: #f3d27a;
   transform-origin: 6px 24px;
@@ -377,10 +404,10 @@ textarea:focus {
 .mailbox-flag::before {
   content: "";
   position: absolute;
-  left: 4px;
-  bottom: -34px;
-  width: 8px;
-  height: 38px;
+  left: 5px;
+  bottom: -46px;
+  width: 10px;
+  height: 52px;
   border-radius: 999px;
   background: #6b4a2f;
 }
@@ -389,8 +416,8 @@ textarea:focus {
   position: absolute;
   left: 50%;
   top: 48%;
-  width: 96px;
-  height: 62px;
+  width: 112px;
+  height: 72px;
   opacity: 0;
   border: 2px solid rgba(94, 74, 38, 0.42);
   border-radius: 4px;
@@ -403,15 +430,15 @@ textarea:focus {
 }
 
 .paper-desk.mailing .mailbox {
-  animation: mailboxAppear 1.05s ease forwards;
+  animation: mailboxAppear 1.2s ease forwards;
 }
 
 .paper-desk.mailing .mail-letter {
-  animation: letterToMailbox 1.05s cubic-bezier(0.2, 0.78, 0.28, 1) forwards;
+  animation: letterToMailbox 1.2s cubic-bezier(0.2, 0.78, 0.28, 1) forwards;
 }
 
 .paper-desk.mailing .paper-form {
-  animation: fadeWritingPaper 1.05s ease forwards;
+  animation: fadeWritingPaper 1.2s ease forwards;
 }
 
 @keyframes mailboxAppear {
@@ -439,11 +466,11 @@ textarea:focus {
   }
   72% {
     opacity: 1;
-    transform: translate(-50%, 170px) rotate(8deg) scale(0.42);
+    transform: translate(-50%, 192px) rotate(8deg) scale(0.42);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, 192px) rotate(10deg) scale(0.14);
+    transform: translate(-50%, 220px) rotate(10deg) scale(0.08);
   }
 }
 
@@ -453,11 +480,11 @@ textarea:focus {
     transform: scale(1);
   }
   35% {
-    opacity: 0.42;
+    opacity: 0.32;
     transform: scale(0.985);
   }
   100% {
-    opacity: 0.14;
+    opacity: 0;
     transform: scale(0.96);
   }
 }
@@ -670,7 +697,8 @@ legend {
     width: 100%;
   }
 
-  .toast {
+  .delivery-toast {
     position: static;
+    transform: none;
   }
 }

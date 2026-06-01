@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getMemberSession } from "@/lib/session";
 import { signOutMember } from "@/app/actions";
+import { DeliveryToast } from "@/components/delivery-toast";
 import { MemberLoginForm } from "@/components/member-login-form";
 import { PostThrowForm } from "@/components/post-throw-form";
 
@@ -22,9 +23,7 @@ export default async function Home({
           <h1>대나무숲</h1>
         </div>
 
-        {params?.submitted ? (
-          <div className="toast">종이가 숲 너머로 날아갔습니다. 검수 후 게시됩니다.</div>
-        ) : null}
+        {params?.submitted ? <DeliveryToast /> : null}
 
         {!session ? (
           <div className="login-card">

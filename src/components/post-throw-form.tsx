@@ -24,7 +24,7 @@ export function PostThrowForm() {
     window.setTimeout(() => {
       shouldSubmit.current = true;
       formRef.current?.requestSubmit();
-    }, 1050);
+    }, 1250);
   }
 
   return (
