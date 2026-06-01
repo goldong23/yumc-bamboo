@@ -67,6 +67,7 @@ export async function signInMember(
     return { message: "동아리 명단에서 확인되지 않았습니다." };
   }
 
+  await clearAdminSession();
   await setMemberSession({
     name: result.displayName,
     studentId,
@@ -79,7 +80,10 @@ export async function signInMember(
 
 export async function signOutMember() {
   await clearMemberSession();
+  await clearAdminSession();
   revalidatePath("/");
+  revalidatePath("/board");
+  revalidatePath("/admin");
   redirect("/");
 }
 

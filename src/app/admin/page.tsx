@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getAdminSession } from "@/lib/session";
+import { isAdminCredential } from "@/lib/members";
+import { getAdminSession, getMemberSession } from "@/lib/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   deleteComment,
@@ -157,8 +158,13 @@ function AdminPostCard({
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const session = await getAdminSession();
+  const memberSession = await getMemberSession();
 
-  if (!session?.admin) {
+  if (
+    !session?.admin ||
+    !memberSession ||
+    !isAdminCredential(memberSession.name, memberSession.studentId)
+  ) {
     redirect("/");
   }
 

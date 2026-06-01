@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isAdminCredential } from "@/lib/members";
 import { getAdminSession, getMemberSession } from "@/lib/session";
 import { signOutMember } from "@/app/actions";
 import { DeliveryToast } from "@/components/delivery-toast";
@@ -15,6 +16,8 @@ export default async function Home({
   const params = await searchParams;
   const session = await getMemberSession();
   const adminSession = await getAdminSession();
+  const isAdminUser =
+    Boolean(adminSession?.admin && session && isAdminCredential(session.name, session.studentId));
 
   return (
     <main className="bamboo-page">
@@ -43,7 +46,7 @@ export default async function Home({
                 <h2>{session.name} 님의 종이</h2>
               </div>
               <div className="writer-actions">
-                {adminSession?.admin ? (
+                {isAdminUser ? (
                   <Link className="ghost-button" href="/admin">
                     관리자 페이지
                   </Link>
