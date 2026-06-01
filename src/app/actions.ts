@@ -13,7 +13,6 @@ import {
   setAdminSession,
   setMemberSession,
 } from "@/lib/session";
-import type { PostStatus } from "@/types/database";
 
 export type ActionState = {
   message: string;
@@ -219,75 +218,87 @@ async function requireAdmin() {
   }
 }
 
+function redirectAdminError(message: string): never {
+  redirect(`/admin?error=${encodeURIComponent(message)}`);
+}
+
 export async function publishPost(formData: FormData) {
   await requireAdmin();
   const id = textValue(formData, "id");
+  if (!id) {
+    redirectAdminError("게시할 글을 찾을 수 없습니다.");
+  }
+
   const supabase = createAdminClient();
 
-  await supabase
+  const { error } = await supabase
     .from("posts")
     .update({ status: "published", published_at: new Date().toISOString() })
     .eq("id", id);
 
+  if (error) {
+    redirectAdminError(`게시 실패: ${error.message}`);
+  }
+
   revalidatePath("/");
   revalidatePath("/board");
   revalidatePath("/admin");
+  redirect("/admin");
 }
 
 export async function rejectPost(formData: FormData) {
   await requireAdmin();
   const id = textValue(formData, "id");
-  const supabase = createAdminClient();
-
-  await supabase.from("posts").update({ status: "rejected" }).eq("id", id);
-
-  revalidatePath("/admin");
-}
-
-export async function updatePost(formData: FormData) {
-  await requireAdmin();
-  const id = textValue(formData, "id");
-  const content = textValue(formData, "content");
-  const category = textValue(formData, "category") || "general";
-  const status = textValue(formData, "status") as PostStatus;
-
-  if (!id || content.length < 1) return;
+  if (!id) {
+    redirectAdminError("거절할 글을 찾을 수 없습니다.");
+  }
 
   const supabase = createAdminClient();
-  await supabase
-    .from("posts")
-    .update({
-      content,
-      category,
-      status,
-      published_at: status === "published" ? new Date().toISOString() : null,
-    })
-    .eq("id", id);
 
-  revalidatePath("/board");
+  const { error } = await supabase.from("posts").update({ status: "rejected" }).eq("id", id);
+
+  if (error) {
+    redirectAdminError(`거절 실패: ${error.message}`);
+  }
+
   revalidatePath("/admin");
+  redirect("/admin");
 }
 
 export async function deletePost(formData: FormData) {
   await requireAdmin();
   const id = textValue(formData, "id");
-  if (!id) return;
+  if (!id) {
+    redirectAdminError("삭제할 글을 찾을 수 없습니다.");
+  }
 
   const supabase = createAdminClient();
-  await supabase.from("posts").delete().eq("id", id);
+  const { error } = await supabase.from("posts").delete().eq("id", id);
+
+  if (error) {
+    redirectAdminError(`삭제 실패: ${error.message}`);
+  }
 
   revalidatePath("/board");
   revalidatePath("/admin");
+  redirect("/admin");
 }
 
 export async function deleteComment(formData: FormData) {
   await requireAdmin();
   const id = textValue(formData, "id");
-  if (!id) return;
+  if (!id) {
+    redirectAdminError("삭제할 댓글을 찾을 수 없습니다.");
+  }
 
   const supabase = createAdminClient();
-  await supabase.from("comments").delete().eq("id", id);
+  const { error } = await supabase.from("comments").delete().eq("id", id);
+
+  if (error) {
+    redirectAdminError(`댓글 삭제 실패: ${error.message}`);
+  }
 
   revalidatePath("/board");
   revalidatePath("/admin");
+  redirect("/admin");
 }

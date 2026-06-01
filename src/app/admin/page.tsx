@@ -4,12 +4,11 @@ import { getAdminSession } from "@/lib/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   deleteComment,
-  deletePost,
   publishPost,
   rejectPost,
   signOutAdmin,
-  updatePost,
 } from "@/app/actions";
+import { ConfirmDeletePost } from "@/components/confirm-delete-post";
 import type { Comment, Post } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +27,12 @@ type AdminData = {
   comments: Comment[];
   setupNeeded: boolean;
   error?: string;
+};
+
+type AdminPageProps = {
+  searchParams?: Promise<{
+    error?: string;
+  }>;
 };
 
 async function getAdminPosts(): Promise<AdminData> {
@@ -104,36 +109,7 @@ function AdminPostCard({
         <time>{formatDate(mode === "pending" ? post.created_at : post.published_at)}</time>
       </div>
 
-      <form action={updatePost} className="admin-edit-form">
-        <input name="id" type="hidden" value={post.id} />
-        <label>
-          <span>본문 수정</span>
-          <textarea name="content" required rows={5} defaultValue={post.content} />
-        </label>
-        <div className="admin-edit-grid">
-          <label>
-            <span>분류</span>
-            <select name="category" defaultValue={post.category}>
-              <option value="general">일반</option>
-              <option value="question">질문</option>
-              <option value="confession">고백/하소연</option>
-              <option value="humor">유머</option>
-              <option value="event">행사/모임</option>
-            </select>
-          </label>
-          <label>
-            <span>상태</span>
-            <select name="status" defaultValue={post.status}>
-              <option value="pending">검수 대기</option>
-              <option value="published">게시</option>
-              <option value="rejected">거절</option>
-            </select>
-          </label>
-        </div>
-        <button className="primary-button small" type="submit">
-          수정 저장
-        </button>
-      </form>
+      <p>{post.content}</p>
 
       <div className="admin-actions">
         {mode === "pending" ? (
@@ -152,12 +128,7 @@ function AdminPostCard({
             </form>
           </>
         ) : null}
-        <form action={deletePost}>
-          <input name="id" type="hidden" value={post.id} />
-          <button className="danger-button" type="submit">
-            글 삭제
-          </button>
-        </form>
+        <ConfirmDeletePost postId={post.id} />
       </div>
 
       {comments.length ? (
@@ -183,14 +154,16 @@ function AdminPostCard({
   );
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   const session = await getAdminSession();
 
   if (!session?.admin) {
     redirect("/");
   }
 
+  const params = await searchParams;
   const { pending, published, comments, setupNeeded, error } = await getAdminPosts();
+  const actionError = params?.error ? decodeURIComponent(params.error) : "";
 
   return (
     <main className="admin-shell">
@@ -221,7 +194,7 @@ export default async function AdminPage() {
             등록해야 합니다.
           </p>
         ) : null}
-        {error ? <p className="form-message">{error}</p> : null}
+        {error || actionError ? <p className="form-message">{actionError || error}</p> : null}
 
         <div className="admin-columns">
           <section>

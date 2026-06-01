@@ -713,8 +713,7 @@ legend {
   gap: 8px;
 }
 
-.comment-form textarea,
-.admin-edit-form textarea {
+.comment-form textarea {
   min-height: auto;
   border: 1px solid rgba(18, 61, 36, 0.18);
   background: rgba(255, 255, 255, 0.72);
@@ -769,16 +768,23 @@ legend {
   min-height: 38px;
 }
 
-.admin-edit-form {
-  display: grid;
-  gap: 10px;
-  margin-top: 12px;
+.ghost-button.compact {
+  min-height: 36px;
+  padding: 0 12px;
 }
 
-.admin-edit-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+.delete-confirm {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 1px solid rgba(180, 35, 24, 0.22);
+  border-radius: 6px;
+  background: rgba(255, 242, 238, 0.82);
+  padding: 6px 8px;
+  color: var(--danger);
+  font-weight: 700;
 }
 
 .admin-comment-list {
@@ -822,8 +828,7 @@ legend {
   }
 
   .paper-top,
-  .admin-columns,
-  .admin-edit-grid {
+  .admin-columns {
     grid-template-columns: 1fr;
   }
 
