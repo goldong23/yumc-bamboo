@@ -110,8 +110,7 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
       <section className="board-panel">
         <div className="top-bar">
           <div>
-            <p className="eyebrow">Published</p>
-            <h1>숲에 걸린 글</h1>
+            <h1>대나무숲</h1>
           </div>
           <Link className="ghost-button" href="/">
             종이 쓰러 가기
