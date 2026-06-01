@@ -10,7 +10,7 @@ function normalizeName(name: string) {
   return name.replace(/\s+/g, "").trim().toLowerCase();
 }
 
-function normalizeStudentId(studentId: string) {
+export function normalizeStudentId(studentId: string) {
   return studentId.replace(/[^0-9]/g, "");
 }
 

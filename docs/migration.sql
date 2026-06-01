@@ -6,22 +6,24 @@
 -- 1. posts
 -- ============================================================
 create table if not exists posts (
-  id            uuid primary key default gen_random_uuid(),
-  content       text not null,
-  category      text not null default 'general',
-  status        text not null default 'pending'
-                  check (status in ('pending', 'published', 'rejected')),
-  is_pinned     boolean not null default false,
-  is_anonymous  boolean not null default true,
-  author_name   text,
-  anon_token    text,
-  created_at    timestamptz not null default now(),
-  updated_at    timestamptz not null default now(),
-  published_at  timestamptz
+  id                 uuid primary key default gen_random_uuid(),
+  content            text not null,
+  category           text not null default 'general',
+  status             text not null default 'pending'
+                       check (status in ('pending', 'published', 'rejected')),
+  is_pinned          boolean not null default false,
+  is_anonymous       boolean not null default true,
+  author_name        text,
+  author_student_id  text,
+  anon_token         text,
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now(),
+  published_at       timestamptz
 );
 
 alter table posts add column if not exists is_anonymous boolean not null default true;
 alter table posts add column if not exists author_name text;
+alter table posts add column if not exists author_student_id text;
 alter table posts add column if not exists published_at timestamptz;
 
 -- updated_at 자동 갱신 트리거
@@ -43,12 +45,19 @@ create trigger posts_updated_at
 -- 2. comments
 -- ============================================================
 create table if not exists comments (
-  id          uuid primary key default gen_random_uuid(),
-  post_id     uuid not null references posts(id) on delete cascade,
-  content     text not null,
-  anon_token  text,
-  created_at  timestamptz not null default now()
+  id                 uuid primary key default gen_random_uuid(),
+  post_id            uuid not null references posts(id) on delete cascade,
+  content            text not null,
+  is_anonymous       boolean not null default true,
+  author_name        text,
+  author_student_id  text,
+  anon_token         text,
+  created_at         timestamptz not null default now()
 );
+
+alter table comments add column if not exists is_anonymous boolean not null default true;
+alter table comments add column if not exists author_name text;
+alter table comments add column if not exists author_student_id text;
 
 -- ============================================================
 -- 3. reactions
@@ -89,6 +98,7 @@ alter table reports   enable row level security;
 -- ============================================================
 drop policy if exists "posts_select_published" on posts;
 drop policy if exists "posts_insert_anon" on posts;
+drop policy if exists "comments_select_published_post" on comments;
 drop policy if exists "comments_select_all" on comments;
 drop policy if exists "comments_insert_anon" on comments;
 drop policy if exists "reactions_select_all" on reactions;
@@ -105,16 +115,22 @@ create policy "posts_insert_anon"
   on posts for insert
   with check (status = 'pending');
 
--- comments: 누구나 조회/작성
-create policy "comments_select_all"
+-- comments: published 게시글의 댓글만 공개 조회, 회원은 작성 가능
+create policy "comments_select_published_post"
   on comments for select
-  using (true);
+  using (
+    exists (
+      select 1 from posts
+      where posts.id = comments.post_id
+        and posts.status = 'published'
+    )
+  );
 
 create policy "comments_insert_anon"
   on comments for insert
   with check (true);
 
--- reactions: 누구나 조회/작성
+-- reactions: 누구나 조회/작성/삭제
 create policy "reactions_select_all"
   on reactions for select
   using (true);
@@ -123,7 +139,6 @@ create policy "reactions_insert_anon"
   on reactions for insert
   with check (true);
 
--- reactions: 본인(anon_token 일치)만 삭제
 create policy "reactions_delete_own"
   on reactions for delete
   using (true);
@@ -140,3 +155,5 @@ create index if not exists posts_status_created_at on posts (status, created_at 
 create index if not exists comments_post_id on comments (post_id);
 create index if not exists reactions_target on reactions (target_type, target_id);
 create index if not exists reports_status on reports (status);
+
+notify pgrst, 'reload schema';

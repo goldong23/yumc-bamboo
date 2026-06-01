@@ -9,6 +9,7 @@ const MAX_AGE = 60 * 60 * 24 * 30;
 
 export type MemberSession = {
   name: string;
+  studentId: string;
   memberHash: string;
 };
 

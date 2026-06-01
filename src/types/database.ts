@@ -10,6 +10,7 @@ export type Post = {
   is_pinned: boolean;
   is_anonymous: boolean;
   author_name: string | null;
+  author_student_id: string | null;
   anon_token: string | null;
   created_at: string;
   updated_at: string;
@@ -20,6 +21,9 @@ export type Comment = {
   id: string;
   post_id: string;
   content: string;
+  is_anonymous: boolean;
+  author_name: string | null;
+  author_student_id: string | null;
   anon_token: string | null;
   created_at: string;
 };

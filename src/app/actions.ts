@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdminMemberHash, verifyMember } from "@/lib/members";
+import { isAdminMemberHash, normalizeStudentId, verifyMember } from "@/lib/members";
 import {
   clearAdminSession,
   clearMemberSession,
@@ -13,6 +13,7 @@ import {
   setAdminSession,
   setMemberSession,
 } from "@/lib/session";
+import type { PostStatus } from "@/types/database";
 
 export type ActionState = {
   message: string;
@@ -27,13 +28,17 @@ function hasSupabaseEnv() {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
 
+function publicName(isAnonymous: boolean, name: string) {
+  return isAnonymous ? null : name;
+}
+
 export async function signInMember(
   prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   void prevState;
   const name = textValue(formData, "name");
-  const studentId = textValue(formData, "studentId");
+  const studentId = normalizeStudentId(textValue(formData, "studentId"));
 
   if (!name || !studentId) {
     return { message: "이름과 학번을 모두 입력해 주세요." };
@@ -52,6 +57,7 @@ export async function signInMember(
 
   await setMemberSession({
     name: result.displayName,
+    studentId,
     memberHash: result.hash,
   });
 
@@ -101,7 +107,8 @@ export async function submitPost(
     is_pinned: false,
     anon_token: crypto.randomUUID(),
     is_anonymous: isAnonymous,
-    author_name: isAnonymous ? null : session.name,
+    author_name: publicName(isAnonymous, session.name),
+    author_student_id: session.studentId ?? null,
   });
 
   if (error) {
@@ -111,6 +118,91 @@ export async function submitPost(
   revalidatePath("/");
   revalidatePath("/board");
   redirect("/?submitted=1");
+}
+
+export async function submitComment(
+  prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  void prevState;
+
+  if (!hasSupabaseEnv()) {
+    return { message: "댓글함이 아직 연결되지 않았습니다." };
+  }
+
+  const session = await getMemberSession();
+  if (!session) {
+    return { message: "댓글은 회원 확인 후 작성할 수 있습니다." };
+  }
+
+  const postId = textValue(formData, "postId");
+  const content = textValue(formData, "content");
+  const visibility = textValue(formData, "visibility") || "anonymous";
+
+  if (!postId) {
+    return { message: "게시글을 찾을 수 없습니다." };
+  }
+
+  if (content.length < 2) {
+    return { message: "댓글은 2자 이상 입력해 주세요." };
+  }
+
+  if (content.length > 500) {
+    return { message: "댓글은 500자 이하로 입력해 주세요." };
+  }
+
+  const isAnonymous = visibility !== "named";
+  const supabase = await createClient();
+  const { error } = await supabase.from("comments").insert({
+    post_id: postId,
+    content,
+    anon_token: crypto.randomUUID(),
+    is_anonymous: isAnonymous,
+    author_name: publicName(isAnonymous, session.name),
+    author_student_id: session.studentId ?? null,
+  });
+
+  if (error) {
+    return { message: `댓글 저장에 실패했습니다: ${error.message}` };
+  }
+
+  revalidatePath("/board");
+  return { message: "" };
+}
+
+export async function togglePostLike(formData: FormData) {
+  if (!hasSupabaseEnv()) return;
+
+  const session = await getMemberSession();
+  if (!session) {
+    redirect("/");
+  }
+
+  const postId = textValue(formData, "postId");
+  if (!postId) return;
+
+  const supabase = await createClient();
+  const existing = await supabase
+    .from("reactions")
+    .select("id")
+    .eq("target_type", "post")
+    .eq("target_id", postId)
+    .eq("anon_token", session.memberHash)
+    .eq("reaction", "like")
+    .maybeSingle();
+
+  if (existing.data?.id) {
+    await supabase.from("reactions").delete().eq("id", existing.data.id);
+  } else {
+    await supabase.from("reactions").insert({
+      target_type: "post",
+      target_id: postId,
+      anon_token: session.memberHash,
+      reaction: "like",
+    });
+  }
+
+  revalidatePath("/board");
 }
 
 export async function signOutAdmin() {
@@ -149,5 +241,53 @@ export async function rejectPost(formData: FormData) {
 
   await supabase.from("posts").update({ status: "rejected" }).eq("id", id);
 
+  revalidatePath("/admin");
+}
+
+export async function updatePost(formData: FormData) {
+  await requireAdmin();
+  const id = textValue(formData, "id");
+  const content = textValue(formData, "content");
+  const category = textValue(formData, "category") || "general";
+  const status = textValue(formData, "status") as PostStatus;
+
+  if (!id || content.length < 1) return;
+
+  const supabase = createAdminClient();
+  await supabase
+    .from("posts")
+    .update({
+      content,
+      category,
+      status,
+      published_at: status === "published" ? new Date().toISOString() : null,
+    })
+    .eq("id", id);
+
+  revalidatePath("/board");
+  revalidatePath("/admin");
+}
+
+export async function deletePost(formData: FormData) {
+  await requireAdmin();
+  const id = textValue(formData, "id");
+  if (!id) return;
+
+  const supabase = createAdminClient();
+  await supabase.from("posts").delete().eq("id", id);
+
+  revalidatePath("/board");
+  revalidatePath("/admin");
+}
+
+export async function deleteComment(formData: FormData) {
+  await requireAdmin();
+  const id = textValue(formData, "id");
+  if (!id) return;
+
+  const supabase = createAdminClient();
+  await supabase.from("comments").delete().eq("id", id);
+
+  revalidatePath("/board");
   revalidatePath("/admin");
 }
