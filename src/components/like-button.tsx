@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { togglePostLike } from "@/app/actions";
+import { useRef, useState, useTransition } from "react";
+import { setPostLike } from "@/app/actions";
 
 type LikeButtonProps = {
   count: number;
@@ -11,36 +10,42 @@ type LikeButtonProps = {
 };
 
 export function LikeButton({ count, liked, postId }: LikeButtonProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [state, setState] = useState({ count, liked });
+  const stateRef = useRef(state);
+  const requestRef = useRef(0);
+
+  function applyState(next: { count: number; liked: boolean }) {
+    stateRef.current = next;
+    setState(next);
+  }
 
   function handleClick() {
-    if (pending) return;
-
-    const previous = state;
+    const previous = stateRef.current;
     const next = {
-      count: state.liked ? Math.max(0, state.count - 1) : state.count + 1,
-      liked: !state.liked,
+      count: previous.liked ? Math.max(0, previous.count - 1) : previous.count + 1,
+      liked: !previous.liked,
     };
+    const requestId = requestRef.current + 1;
 
-    setState(next);
+    requestRef.current = requestId;
+    applyState(next);
 
     startTransition(async () => {
       const formData = new FormData();
       formData.set("postId", postId);
+      formData.set("liked", String(next.liked));
 
       try {
-        const result = await togglePostLike(formData);
+        const result = await setPostLike(formData);
 
-        if (result) {
-          setState(result);
+        if (result && requestRef.current === requestId) {
+          applyState(result);
         }
-
-        router.refresh();
       } catch {
-        setState(previous);
-        router.refresh();
+        if (requestRef.current === requestId) {
+          applyState(previous);
+        }
       }
     });
   }
@@ -49,7 +54,6 @@ export function LikeButton({ count, liked, postId }: LikeButtonProps) {
     <button
       aria-label={state.liked ? "좋아요 취소" : "좋아요"}
       className={state.liked ? "like-button liked" : "like-button"}
-      disabled={pending}
       onClick={handleClick}
       type="button"
     >

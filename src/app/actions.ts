@@ -169,7 +169,7 @@ export async function submitComment(
   return { message: "" };
 }
 
-export async function togglePostLike(formData: FormData) {
+export async function setPostLike(formData: FormData) {
   if (!hasSupabaseEnv()) return;
 
   const session = await getMemberSession();
@@ -178,6 +178,7 @@ export async function togglePostLike(formData: FormData) {
   }
 
   const postId = textValue(formData, "postId");
+  const shouldLike = textValue(formData, "liked") === "true";
   if (!postId) return;
 
   const supabase = createAdminClient();
@@ -190,27 +191,25 @@ export async function togglePostLike(formData: FormData) {
     .eq("reaction", "like")
     .maybeSingle();
 
-  let liked = true;
-
-  if (existing.data?.id) {
-    const { error } = await supabase
-      .from("reactions")
-      .delete()
-      .eq("id", existing.data.id)
-      .eq("anon_token", session.memberHash);
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    liked = false;
-  } else {
+  if (shouldLike && !existing.data?.id) {
     const { error } = await supabase.from("reactions").insert({
       target_type: "post",
       target_id: postId,
       anon_token: session.memberHash,
       reaction: "like",
     });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  if (!shouldLike && existing.data?.id) {
+    const { error } = await supabase
+      .from("reactions")
+      .delete()
+      .eq("id", existing.data.id)
+      .eq("anon_token", session.memberHash);
 
     if (error) {
       throw new Error(error.message);
@@ -225,7 +224,7 @@ export async function togglePostLike(formData: FormData) {
     .eq("reaction", "like");
 
   revalidatePath("/board");
-  return { count: count ?? 0, liked };
+  return { count: count ?? 0, liked: shouldLike };
 }
 
 export async function signOutAdmin() {
