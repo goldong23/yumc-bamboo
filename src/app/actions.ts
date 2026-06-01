@@ -180,7 +180,7 @@ export async function togglePostLike(formData: FormData) {
   const postId = textValue(formData, "postId");
   if (!postId) return;
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const existing = await supabase
     .from("reactions")
     .select("id")
@@ -191,7 +191,11 @@ export async function togglePostLike(formData: FormData) {
     .maybeSingle();
 
   if (existing.data?.id) {
-    await supabase.from("reactions").delete().eq("id", existing.data.id);
+    await supabase
+      .from("reactions")
+      .delete()
+      .eq("id", existing.data.id)
+      .eq("anon_token", session.memberHash);
   } else {
     await supabase.from("reactions").insert({
       target_type: "post",
