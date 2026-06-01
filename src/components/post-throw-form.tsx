@@ -1,34 +1,16 @@
 "use client";
 
-import { type FormEvent, useActionState, useRef, useState } from "react";
+import { useActionState } from "react";
 import { submitPost } from "@/app/actions";
 import { ActionButton } from "@/components/action-button";
 
 const initialState = { message: "" };
 
 export function PostThrowForm() {
-  const [state, formAction] = useActionState(submitPost, initialState);
-  const [mailing, setMailing] = useState(false);
-  const shouldSubmit = useRef(false);
-  const formRef = useRef<HTMLFormElement>(null);
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    if (shouldSubmit.current) {
-      shouldSubmit.current = false;
-      return;
-    }
-
-    event.preventDefault();
-    setMailing(true);
-
-    window.setTimeout(() => {
-      shouldSubmit.current = true;
-      formRef.current?.requestSubmit();
-    }, 1250);
-  }
+  const [state, formAction, pending] = useActionState(submitPost, initialState);
 
   return (
-    <div className={mailing ? "paper-desk mailing" : "paper-desk"}>
+    <div className={pending ? "paper-desk mailing" : "paper-desk"}>
       <div className="mailbox-scene" aria-hidden="true">
         <div className="mail-letter" />
         <div className="mailbox">
@@ -41,8 +23,6 @@ export function PostThrowForm() {
       <form
         action={formAction}
         className="paper-form"
-        onSubmit={handleSubmit}
-        ref={formRef}
       >
         <div className="paper-top">
           <label>
