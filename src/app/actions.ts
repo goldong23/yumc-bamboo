@@ -190,22 +190,42 @@ export async function togglePostLike(formData: FormData) {
     .eq("reaction", "like")
     .maybeSingle();
 
+  let liked = true;
+
   if (existing.data?.id) {
-    await supabase
+    const { error } = await supabase
       .from("reactions")
       .delete()
       .eq("id", existing.data.id)
       .eq("anon_token", session.memberHash);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    liked = false;
   } else {
-    await supabase.from("reactions").insert({
+    const { error } = await supabase.from("reactions").insert({
       target_type: "post",
       target_id: postId,
       anon_token: session.memberHash,
       reaction: "like",
     });
+
+    if (error) {
+      throw new Error(error.message);
+    }
   }
 
+  const { count } = await supabase
+    .from("reactions")
+    .select("id", { count: "exact", head: true })
+    .eq("target_type", "post")
+    .eq("target_id", postId)
+    .eq("reaction", "like");
+
   revalidatePath("/board");
+  return { count: count ?? 0, liked };
 }
 
 export async function signOutAdmin() {

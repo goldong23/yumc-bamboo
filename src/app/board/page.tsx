@@ -156,7 +156,12 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
 
                   <div className="reaction-row">
                     {session ? (
-                      <LikeButton count={postReactions.length} liked={liked} postId={post.id} />
+                      <LikeButton
+                        count={postReactions.length}
+                        key={`${post.id}-${liked}-${postReactions.length}`}
+                        liked={liked}
+                        postId={post.id}
+                      />
                     ) : (
                       <span className="like-count">
                         <span aria-hidden="true">👍</span>
