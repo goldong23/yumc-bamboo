@@ -307,61 +307,158 @@ textarea:focus {
   position: relative;
   width: min(720px, 100%);
   margin: 0 auto;
-  transform-origin: 50% 75%;
-  will-change: transform, opacity;
+  min-height: 620px;
 }
 
-.paper-desk.throwing {
-  animation: tossCrumpledPaper 1.28s cubic-bezier(0.18, 0.78, 0.25, 1) forwards;
+.mailbox-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
 }
 
-.paper-desk.throwing .paper-form {
-  animation: crumplePaper 1.28s ease-in-out forwards;
+.mailbox {
+  position: absolute;
+  right: 50%;
+  bottom: 92px;
+  width: 156px;
+  height: 96px;
+  opacity: 0;
+  transform: translateX(50%) translateY(18px) scale(0.9);
 }
 
-@keyframes tossCrumpledPaper {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
-    opacity: 1;
+.mailbox::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  height: 74px;
+  border-radius: 54px 54px 8px 8px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent 34%),
+    #bf2d2d;
+  box-shadow:
+    inset 0 -10px 0 rgba(71, 18, 18, 0.25),
+    0 18px 34px rgba(0, 0, 0, 0.26);
+}
+
+.mailbox-door {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 46px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(42, 8, 8, 0.5);
+}
+
+.mailbox-post {
+  position: absolute;
+  left: calc(50% - 12px);
+  bottom: -70px;
+  width: 24px;
+  height: 92px;
+  background: #6b4a2f;
+  box-shadow: inset -5px 0 rgba(0, 0, 0, 0.16);
+}
+
+.mailbox-flag {
+  position: absolute;
+  right: 18px;
+  top: 12px;
+  width: 40px;
+  height: 28px;
+  border-radius: 4px;
+  background: #f3d27a;
+  transform-origin: 6px 24px;
+}
+
+.mailbox-flag::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  bottom: -34px;
+  width: 8px;
+  height: 38px;
+  border-radius: 999px;
+  background: #6b4a2f;
+}
+
+.mail-letter {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 96px;
+  height: 62px;
+  opacity: 0;
+  border: 2px solid rgba(94, 74, 38, 0.42);
+  border-radius: 4px;
+  background:
+    linear-gradient(32deg, transparent 48%, rgba(94, 74, 38, 0.18) 50%, transparent 52%),
+    linear-gradient(-32deg, transparent 48%, rgba(94, 74, 38, 0.18) 50%, transparent 52%),
+    var(--paper);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  transform: translate(-50%, -50%) rotate(-5deg) scale(0.9);
+}
+
+.paper-desk.mailing .mailbox {
+  animation: mailboxAppear 1.05s ease forwards;
+}
+
+.paper-desk.mailing .mail-letter {
+  animation: letterToMailbox 1.05s cubic-bezier(0.2, 0.78, 0.28, 1) forwards;
+}
+
+.paper-desk.mailing .paper-form {
+  animation: fadeWritingPaper 1.05s ease forwards;
+}
+
+@keyframes mailboxAppear {
+  0%,
+  18% {
+    opacity: 0;
+    transform: translateX(50%) translateY(18px) scale(0.9);
   }
-  20% {
-    transform: translate3d(0, 12px, 0) rotate(-2deg) scale(0.82);
+  36%,
+  100% {
     opacity: 1;
+    transform: translateX(50%) translateY(0) scale(1);
   }
-  48% {
-    transform: translate3d(10vw, -16vh, 0) rotate(74deg) scale(0.44);
-    opacity: 0.96;
+}
+
+@keyframes letterToMailbox {
+  0%,
+  22% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-5deg) scale(0.9);
+  }
+  36% {
+    opacity: 1;
+    transform: translate(-50%, -72%) rotate(-2deg) scale(1);
   }
   72% {
-    transform: translate3d(27vw, -8vh, 0) rotate(210deg) scale(0.21);
-    opacity: 0.78;
+    opacity: 1;
+    transform: translate(-50%, 170px) rotate(8deg) scale(0.42);
   }
   100% {
-    transform: translate3d(40vw, 12vh, 0) rotate(390deg) scale(0.04);
     opacity: 0;
+    transform: translate(-50%, 192px) rotate(10deg) scale(0.14);
   }
 }
 
-@keyframes crumplePaper {
+@keyframes fadeWritingPaper {
   0% {
-    border-radius: 3px;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-    filter: none;
+    opacity: 1;
+    transform: scale(1);
   }
-  22% {
-    border-radius: 18px 40px 26px 36px;
-    clip-path: polygon(12% 6%, 88% 3%, 96% 82%, 68% 96%, 9% 88%, 3% 28%);
-    filter: brightness(0.94) contrast(1.08);
-  }
-  46% {
-    border-radius: 999px 70% 999px 80%;
-    clip-path: polygon(22% 12%, 78% 8%, 92% 42%, 76% 86%, 31% 91%, 7% 56%);
-    filter: brightness(0.86) contrast(1.22);
+  35% {
+    opacity: 0.42;
+    transform: scale(0.985);
   }
   100% {
-    border-radius: 999px;
-    clip-path: polygon(37% 18%, 70% 21%, 84% 51%, 60% 80%, 28% 72%, 17% 42%);
-    filter: brightness(0.76) contrast(1.32);
+    opacity: 0.14;
+    transform: scale(0.96);
   }
 }
 

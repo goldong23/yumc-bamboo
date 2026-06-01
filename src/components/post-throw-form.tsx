@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { type FormEvent, useActionState, useRef, useState } from "react";
 import { submitPost } from "@/app/actions";
 import { ActionButton } from "@/components/action-button";
 
@@ -8,20 +8,41 @@ const initialState = { message: "" };
 
 export function PostThrowForm() {
   const [state, formAction] = useActionState(submitPost, initialState);
-  const [launching, setLaunching] = useState(false);
+  const [mailing, setMailing] = useState(false);
+  const shouldSubmit = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (!launching) return;
-    const timeout = window.setTimeout(() => setLaunching(false), 1300);
-    return () => window.clearTimeout(timeout);
-  }, [launching]);
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (shouldSubmit.current) {
+      shouldSubmit.current = false;
+      return;
+    }
+
+    event.preventDefault();
+    setMailing(true);
+
+    window.setTimeout(() => {
+      shouldSubmit.current = true;
+      formRef.current?.requestSubmit();
+    }, 1050);
+  }
 
   return (
-    <div className={launching ? "paper-desk throwing" : "paper-desk"}>
+    <div className={mailing ? "paper-desk mailing" : "paper-desk"}>
+      <div className="mailbox-scene" aria-hidden="true">
+        <div className="mail-letter" />
+        <div className="mailbox">
+          <div className="mailbox-flag" />
+          <div className="mailbox-door" />
+          <div className="mailbox-post" />
+        </div>
+      </div>
+
       <form
         action={formAction}
         className="paper-form"
-        onSubmit={() => setLaunching(true)}
+        onSubmit={handleSubmit}
+        ref={formRef}
       >
         <div className="paper-top">
           <label>
@@ -62,8 +83,8 @@ export function PostThrowForm() {
 
         {state.message ? <p className="form-message">{state.message}</p> : null}
 
-        <ActionButton className="throw-button" pendingText="던지는 중">
-          구겨서 던지기
+        <ActionButton className="throw-button" pendingText="넣는 중">
+          우체통에 넣기
         </ActionButton>
       </form>
     </div>
