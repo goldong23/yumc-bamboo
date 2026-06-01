@@ -1,22 +1,23 @@
--- YUMC 대나무숲 초기 DB 스키마
--- Supabase SQL Editor에서 순서대로 실행
+-- YUMC 대나무숲 DB 스키마
+-- Supabase SQL Editor에서 실행합니다.
+-- 여러 번 실행해도 기존 객체 충돌이 나지 않도록 작성했습니다.
 
 -- ============================================================
 -- 1. posts
 -- ============================================================
 create table if not exists posts (
-  id          uuid primary key default gen_random_uuid(),
-  content     text not null,
-  category    text not null default 'general',
-  status      text not null default 'pending'
-                check (status in ('pending', 'published', 'rejected')),
-  is_pinned   boolean not null default false,
-  is_anonymous boolean not null default true,
-  author_name text,
-  anon_token  text,
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now(),
-  published_at timestamptz
+  id            uuid primary key default gen_random_uuid(),
+  content       text not null,
+  category      text not null default 'general',
+  status        text not null default 'pending'
+                  check (status in ('pending', 'published', 'rejected')),
+  is_pinned     boolean not null default false,
+  is_anonymous  boolean not null default true,
+  author_name   text,
+  anon_token    text,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  published_at  timestamptz
 );
 
 alter table posts add column if not exists is_anonymous boolean not null default true;
@@ -31,6 +32,8 @@ begin
   return new;
 end;
 $$ language plpgsql;
+
+drop trigger if exists posts_updated_at on posts;
 
 create trigger posts_updated_at
   before update on posts
@@ -51,12 +54,12 @@ create table if not exists comments (
 -- 3. reactions
 -- ============================================================
 create table if not exists reactions (
-  id          uuid primary key default gen_random_uuid(),
-  target_type text not null check (target_type in ('post', 'comment')),
-  target_id   uuid not null,
-  reaction    text not null default 'like',
-  anon_token  text not null,
-  created_at  timestamptz not null default now(),
+  id           uuid primary key default gen_random_uuid(),
+  target_type  text not null check (target_type in ('post', 'comment')),
+  target_id    uuid not null,
+  reaction     text not null default 'like',
+  anon_token   text not null,
+  created_at   timestamptz not null default now(),
   unique (target_type, target_id, anon_token, reaction)
 );
 
@@ -64,13 +67,13 @@ create table if not exists reactions (
 -- 4. reports
 -- ============================================================
 create table if not exists reports (
-  id          uuid primary key default gen_random_uuid(),
-  target_type text not null check (target_type in ('post', 'comment')),
-  target_id   uuid not null,
-  reason      text not null,
-  status      text not null default 'pending'
-                check (status in ('pending', 'resolved')),
-  created_at  timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  target_type  text not null check (target_type in ('post', 'comment')),
+  target_id    uuid not null,
+  reason       text not null,
+  status       text not null default 'pending'
+                 check (status in ('pending', 'resolved')),
+  created_at   timestamptz not null default now()
 );
 
 -- ============================================================
@@ -84,6 +87,14 @@ alter table reports   enable row level security;
 -- ============================================================
 -- 6. RLS 정책
 -- ============================================================
+drop policy if exists "posts_select_published" on posts;
+drop policy if exists "posts_insert_anon" on posts;
+drop policy if exists "comments_select_all" on comments;
+drop policy if exists "comments_insert_anon" on comments;
+drop policy if exists "reactions_select_all" on reactions;
+drop policy if exists "reactions_insert_anon" on reactions;
+drop policy if exists "reactions_delete_own" on reactions;
+drop policy if exists "reports_insert_anon" on reports;
 
 -- posts: 누구나 published 글 조회, 누구나 INSERT(pending)
 create policy "posts_select_published"
@@ -115,7 +126,7 @@ create policy "reactions_insert_anon"
 -- reactions: 본인(anon_token 일치)만 삭제
 create policy "reactions_delete_own"
   on reactions for delete
-  using (true);  -- 클라이언트에서 anon_token 필터링으로 제어
+  using (true);
 
 -- reports: 누구나 신고 가능
 create policy "reports_insert_anon"
