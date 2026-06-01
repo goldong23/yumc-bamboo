@@ -8,6 +8,7 @@ import {
   rejectPost,
   signOutAdmin,
 } from "@/app/actions";
+import { ActionButton } from "@/components/action-button";
 import { ConfirmDeletePost } from "@/components/confirm-delete-post";
 import type { Comment, Post } from "@/types/database";
 
@@ -116,15 +117,15 @@ function AdminPostCard({
           <>
             <form action={publishPost}>
               <input name="id" type="hidden" value={post.id} />
-              <button className="primary-button small" type="submit">
+              <ActionButton className="primary-button small" pendingText="게시 중">
                 게시
-              </button>
+              </ActionButton>
             </form>
             <form action={rejectPost}>
               <input name="id" type="hidden" value={post.id} />
-              <button className="danger-button" type="submit">
+              <ActionButton className="danger-button" pendingText="거절 중">
                 거절
-              </button>
+              </ActionButton>
             </form>
           </>
         ) : null}
@@ -142,9 +143,9 @@ function AdminPostCard({
               </div>
               <form action={deleteComment}>
                 <input name="id" type="hidden" value={comment.id} />
-                <button className="danger-button" type="submit">
+                <ActionButton className="danger-button" pendingText="삭제 중">
                   삭제
-                </button>
+                </ActionButton>
               </form>
             </div>
           ))}

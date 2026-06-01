@@ -718,6 +718,17 @@ legend {
   border-color: rgba(47, 125, 50, 0.32);
 }
 
+.like-button {
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.like-button:active {
+  transform: scale(0.94);
+}
+
 .comment-list {
   display: grid;
   gap: 8px;

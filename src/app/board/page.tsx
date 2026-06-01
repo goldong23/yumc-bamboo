@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getMemberSession } from "@/lib/session";
-import { togglePostLike } from "@/app/actions";
 import { CommentForm } from "@/components/comment-form";
+import { LikeButton } from "@/components/like-button";
 import type { Comment, Post, Reaction } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -156,17 +156,7 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
 
                   <div className="reaction-row">
                     {session ? (
-                      <form action={togglePostLike}>
-                        <input name="postId" type="hidden" value={post.id} />
-                        <button
-                          aria-label={liked ? "좋아요 취소" : "좋아요"}
-                          className={liked ? "like-button liked" : "like-button"}
-                          type="submit"
-                        >
-                          <span aria-hidden="true">👍</span>
-                          <span>{postReactions.length}</span>
-                        </button>
-                      </form>
+                      <LikeButton count={postReactions.length} liked={liked} postId={post.id} />
                     ) : (
                       <span className="like-count">
                         <span aria-hidden="true">👍</span>
