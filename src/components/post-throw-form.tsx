@@ -33,6 +33,7 @@ export function PostThrowForm() {
               <option value="confession">고백/하소연</option>
               <option value="humor">유머</option>
               <option value="event">행사/모임</option>
+              <option value="suggestion">건의사항</option>
             </select>
           </label>
 

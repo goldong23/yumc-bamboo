@@ -21,6 +21,7 @@ const categoryLabels: Record<string, string> = {
   confession: "고백/하소연",
   humor: "유머",
   event: "행사/모임",
+  suggestion: "건의사항",
 };
 
 type AdminData = {
