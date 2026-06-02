@@ -11,7 +11,7 @@ const categoryLabels: Record<string, string> = {
   general: "일반",
   question: "질문",
   confession: "고백/하소연",
-  humor: "유머",
+  humor: "잼얘",
   event: "행사/모임",
   suggestion: "건의사항",
 };
@@ -21,7 +21,7 @@ const categoryOptions = [
   ["general", "일반"],
   ["question", "질문"],
   ["confession", "고백/하소연"],
-  ["humor", "유머"],
+  ["humor", "잼얘"],
   ["event", "행사/모임"],
   ["suggestion", "건의사항"],
 ] as const;
