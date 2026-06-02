@@ -88,6 +88,7 @@ async function getBoardData(category: string): Promise<BoardData> {
 function formatDate(value: string | null) {
   if (!value) return "";
   return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
     month: "short",
     day: "numeric",
     hour: "2-digit",
