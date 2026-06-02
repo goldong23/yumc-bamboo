@@ -56,7 +56,7 @@ export default async function Home({
                 </Link>
                 <form action={signOutMember}>
                   <button className="ghost-button" type="submit">
-                    나가기
+                    로그아웃
                   </button>
                 </form>
               </div>
