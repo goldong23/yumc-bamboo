@@ -292,6 +292,13 @@ textarea:focus {
   color: var(--danger);
 }
 
+.form-success {
+  margin: 0;
+  background: #eef7e7;
+  border: 1px solid rgba(47, 125, 50, 0.22);
+  color: #1d5b32;
+}
+
 .setup-note {
   margin: 0 0 18px;
   background: rgba(238, 247, 231, 0.92);
