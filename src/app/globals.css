@@ -822,6 +822,20 @@ legend {
   font-weight: 700;
 }
 
+.post-permalink {
+  margin-left: auto;
+  color: #8aab8f;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.detail-card {
+  max-width: 720px;
+}
+
 .admin-nav,
 .admin-actions {
   gap: 10px;
