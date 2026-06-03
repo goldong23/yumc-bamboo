@@ -27,6 +27,7 @@ const categoryLabels: Record<string, string> = {
 type AdminData = {
   pending: Post[];
   published: Post[];
+  rejected: Post[];
   comments: Comment[];
   setupNeeded: boolean;
   error?: string;
@@ -43,13 +44,14 @@ async function getAdminPosts(): Promise<AdminData> {
     return {
       pending: [],
       published: [],
+      rejected: [],
       comments: [],
       setupNeeded: true,
     };
   }
 
   const supabase = createAdminClient();
-  const [pending, published, comments] = await Promise.all([
+  const [pending, published, rejected, comments] = await Promise.all([
     supabase
       .from("posts")
       .select("*")
@@ -61,15 +63,27 @@ async function getAdminPosts(): Promise<AdminData> {
       .eq("status", "published")
       .order("published_at", { ascending: false, nullsFirst: false })
       .limit(20),
+    supabase
+      .from("posts")
+      .select("*")
+      .eq("status", "rejected")
+      .order("created_at", { ascending: false })
+      .limit(20),
     supabase.from("comments").select("*").order("created_at", { ascending: true }),
   ]);
 
   return {
     pending: pending.data ?? [],
     published: published.data ?? [],
+    rejected: rejected.data ?? [],
     comments: comments.data ?? [],
     setupNeeded: false,
-    error: pending.error?.message ?? published.error?.message ?? comments.error?.message ?? "",
+    error:
+      pending.error?.message ??
+      published.error?.message ??
+      rejected.error?.message ??
+      comments.error?.message ??
+      "",
   };
 }
 
@@ -103,7 +117,7 @@ function AdminPostCard({
 }: {
   post: Post;
   comments: Comment[];
-  mode: "pending" | "published";
+  mode: "pending" | "published" | "rejected";
 }) {
   return (
     <article className="admin-post-card">
@@ -132,7 +146,9 @@ function AdminPostCard({
             </form>
           </>
         ) : null}
-        {mode === "published" ? <ConfirmDeletePost postId={post.id} /> : null}
+        {mode === "published" || mode === "rejected" ? (
+        <ConfirmDeletePost postId={post.id} />
+      ) : null}
       </div>
 
       {comments.length ? (
@@ -171,7 +187,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   }
 
   const params = await searchParams;
-  const { pending, published, comments, setupNeeded, error } = await getAdminPosts();
+  const { pending, published, rejected, comments, setupNeeded, error } = await getAdminPosts();
   const actionError = params?.error ? decodeURIComponent(params.error) : "";
 
   return (
@@ -244,6 +260,27 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 ))
               ) : (
                 <div className="empty-state">게시된 글이 없습니다.</div>
+              )}
+            </div>
+          </section>
+
+          <section>
+            <div className="section-heading">
+              <p className="eyebrow">Rejected</p>
+              <h2>거절됨 {rejected.length}</h2>
+            </div>
+            <div className="admin-list">
+              {rejected.length ? (
+                rejected.map((post) => (
+                  <AdminPostCard
+                    comments={[]}
+                    key={post.id}
+                    mode="rejected"
+                    post={post}
+                  />
+                ))
+              ) : (
+                <div className="empty-state">거절된 글이 없습니다.</div>
               )}
             </div>
           </section>
