@@ -812,7 +812,7 @@ legend {
 
 .admin-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 18px;
   align-items: start;
 }
@@ -883,6 +883,12 @@ legend {
   .paper-top,
   .admin-columns {
     grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 600px) and (max-width: 920px) {
+    .admin-columns {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   .writer-head,
