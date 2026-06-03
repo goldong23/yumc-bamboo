@@ -8,13 +8,9 @@ export function DeliveryToast() {
   const router = useRouter();
 
   useEffect(() => {
+    router.replace("/");
     const hideTimer = window.setTimeout(() => setVisible(false), 2600);
-    const cleanTimer = window.setTimeout(() => router.replace("/"), 3200);
-
-    return () => {
-      window.clearTimeout(hideTimer);
-      window.clearTimeout(cleanTimer);
-    };
+    return () => window.clearTimeout(hideTimer);
   }, [router]);
 
   return (

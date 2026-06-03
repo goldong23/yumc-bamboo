@@ -183,7 +183,7 @@ export async function submitComment(
   }
 
   revalidatePath("/board");
-  return { message: "" };
+  return { message: "success" };
 }
 
 export async function setPostLike(formData: FormData) {
