@@ -34,9 +34,6 @@ export default async function Home({
             <p className="eyebrow">회원 확인</p>
             <h2>대나무숲에 어서오세요.</h2>
             <MemberLoginForm />
-            <Link className="secondary-link" href="/board">
-              게시판으로 가기
-            </Link>
           </div>
         ) : (
           <section className="writer-panel">

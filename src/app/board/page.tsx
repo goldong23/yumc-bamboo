@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getMemberSession } from "@/lib/session";
 import { CommentForm } from "@/components/comment-form";
@@ -106,6 +107,11 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
   const params = await searchParams;
   const activeCategory = normalizeCategoryFilter(params?.category);
   const session = await getMemberSession();
+
+  if (!session) {
+    redirect("/");
+  }
+
   const { posts, comments, reactions } = await getBoardData(activeCategory);
 
   return (
