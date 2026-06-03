@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -131,6 +131,7 @@ export async function submitPost(
     return { message: `저장에 실패했습니다: ${error.message}` };
   }
 
+  revalidateTag("posts", {});
   revalidatePath("/");
   revalidatePath("/board");
   redirect("/?submitted=1");
@@ -240,6 +241,7 @@ export async function setPostLike(formData: FormData) {
     .eq("target_id", postId)
     .eq("reaction", "like");
 
+  revalidateTag("posts", {});
   revalidatePath("/board");
   return { count: count ?? 0, liked: shouldLike };
 }
@@ -281,6 +283,7 @@ export async function publishPost(formData: FormData) {
     redirectAdminError(`게시 실패: ${error.message}`);
   }
 
+  revalidateTag("posts", {});
   revalidatePath("/");
   revalidatePath("/board");
   revalidatePath("/admin");
@@ -302,6 +305,7 @@ export async function rejectPost(formData: FormData) {
     redirectAdminError(`거절 실패: ${error.message}`);
   }
 
+  revalidateTag("posts", {});
   revalidatePath("/admin");
   redirect("/admin");
 }
@@ -320,6 +324,7 @@ export async function deletePost(formData: FormData) {
     redirectAdminError(`삭제 실패: ${error.message}`);
   }
 
+  revalidateTag("posts", {});
   revalidatePath("/board");
   revalidatePath("/admin");
   redirect("/admin");
@@ -339,6 +344,7 @@ export async function deleteComment(formData: FormData) {
     redirectAdminError(`댓글 삭제 실패: ${error.message}`);
   }
 
+  revalidateTag("posts", {});
   revalidatePath("/board");
   revalidatePath("/admin");
   redirect("/admin");
