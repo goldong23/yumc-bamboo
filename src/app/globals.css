@@ -292,6 +292,26 @@ textarea:focus {
   color: var(--danger);
 }
 
+.char-counter {
+  margin: 0;
+  text-align: right;
+  font-size: 0.8rem;
+  color: #58715f;
+}
+
+.char-counter.warning {
+  color: #b45309;
+}
+
+.char-counter.danger {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.pinned-badge {
+  background: #1d5b32;
+  color: #fff8e5;
+}
 .form-success {
   margin: 0;
   background: #eef7e7;
@@ -615,9 +635,6 @@ legend {
   gap: 12px;
 }
 
-.board-list {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
 
 .post-card,
 .admin-post-card,

@@ -246,7 +246,6 @@ export async function setPostLike(formData: FormData) {
 
 export async function signOutAdmin() {
   await clearAdminSession();
-  await clearMemberSession();
   revalidatePath("/");
   revalidatePath("/board");
   revalidatePath("/admin");

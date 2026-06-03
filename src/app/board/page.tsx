@@ -156,6 +156,7 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
               return (
                 <article className="post-card board-card" key={post.id}>
                   <div className="post-meta">
+                    {post.is_pinned && <span className="pinned-badge">공지</span>}
                     <span>{categoryLabels[post.category] ?? post.category}</span>
                     <span>{publicAuthor(post.is_anonymous, post.author_name)}</span>
                     <time>{formatDate(post.published_at ?? post.created_at)}</time>
@@ -171,10 +172,14 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
                         postId={post.id}
                       />
                     ) : (
-                      <span className="like-count">
+                      <Link
+                        className="like-count"
+                        href="/"
+                        title="좋아요는 회원 확인 후 이용 가능합니다"
+                      >
                         <span aria-hidden="true">👍</span>
                         <span>{postReactions.length}</span>
-                      </span>
+                      </Link>
                     )}
                     <span>댓글 {postComments.length}</span>
                   </div>
