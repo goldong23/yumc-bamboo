@@ -1,13 +1,22 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { submitPost } from "@/app/actions";
 import { ActionButton } from "@/components/action-button";
 
 const initialState = { message: "" };
+const MAX_LENGTH = 1200;
 
 export function PostThrowForm() {
   const [state, formAction, pending] = useActionState(submitPost, initialState);
+  const [charCount, setCharCount] = useState(0);
+
+  const counterClass =
+    charCount >= MAX_LENGTH
+      ? "char-counter danger"
+      : charCount >= 1100
+        ? "char-counter warning"
+        : "char-counter";
 
   return (
     <div className={pending ? "paper-desk mailing" : "paper-desk"}>
@@ -50,17 +59,21 @@ export function PostThrowForm() {
           </fieldset>
         </div>
 
-        <label className="paper-body">
-          <span>종이에 남길 말</span>
-          <textarea
-            maxLength={1200}
-            minLength={1}
-            name="content"
-            placeholder="여기에 적은 글은 관리자 검수 후 대나무숲에 올라갑니다."
-            required
-            rows={11}
-          />
-        </label>
+        <div className="paper-body">
+          <label>
+            <span>종이에 남길 말</span>
+            <textarea
+              maxLength={MAX_LENGTH}
+              minLength={1}
+              name="content"
+              onChange={(e) => setCharCount(e.target.value.length)}
+              placeholder="여기에 적은 글은 관리자 검수 후 대나무숲에 올라갑니다."
+              required
+              rows={11}
+            />
+          </label>
+          <p className={counterClass}>{charCount}/{MAX_LENGTH}</p>
+        </div>
 
         {state.message ? <p className="form-message">{state.message}</p> : null}
 
