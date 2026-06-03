@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { submitComment } from "@/app/actions";
 import { ActionButton } from "@/components/action-button";
 
@@ -8,9 +8,16 @@ const initialState = { message: "" };
 
 export function CommentForm({ postId }: { postId: string }) {
   const [state, formAction] = useActionState(submitComment, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (state.message === "success") {
+      formRef.current?.reset();
+    }
+  }, [state.message]);
 
   return (
-    <form action={formAction} className="comment-form">
+    <form action={formAction} className="comment-form" ref={formRef}>
       <input name="postId" type="hidden" value={postId} />
       <textarea
         maxLength={500}
@@ -33,7 +40,11 @@ export function CommentForm({ postId }: { postId: string }) {
           댓글 작성
         </ActionButton>
       </div>
-      {state.message ? <p className="form-message">{state.message}</p> : null}
+      {state.message === "success" ? (
+        <p className="form-success">댓글이 등록되었습니다.</p>
+      ) : state.message ? (
+        <p className="form-message">{state.message}</p>
+      ) : null}
     </form>
   );
 }

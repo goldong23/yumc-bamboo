@@ -312,6 +312,12 @@ textarea:focus {
   background: #1d5b32;
   color: #fff8e5;
 }
+.form-success {
+  margin: 0;
+  background: #eef7e7;
+  border: 1px solid rgba(47, 125, 50, 0.22);
+  color: #1d5b32;
+}
 
 .setup-note {
   margin: 0 0 18px;
@@ -823,7 +829,7 @@ legend {
 
 .admin-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 18px;
   align-items: start;
 }
@@ -894,6 +900,12 @@ legend {
   .paper-top,
   .admin-columns {
     grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 600px) and (max-width: 920px) {
+    .admin-columns {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   .writer-head,
