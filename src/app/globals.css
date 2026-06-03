@@ -680,6 +680,12 @@ legend {
   color: #fff8e5;
 }
 
+.my-badge {
+  background: #d1ece8;
+  color: #1a5c58;
+  border: 1px solid rgba(42, 111, 114, 0.22);
+}
+
 .empty-state {
   color: #41604a;
 }

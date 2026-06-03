@@ -121,7 +121,7 @@ export async function submitPost(
     category,
     status: "pending",
     is_pinned: false,
-    anon_token: crypto.randomUUID(),
+    anon_token: session.memberHash,
     is_anonymous: isAnonymous,
     author_name: publicName(isAnonymous, session.name),
     author_student_id: session.studentId ?? null,
@@ -172,7 +172,7 @@ export async function submitComment(
   const { error } = await supabase.from("comments").insert({
     post_id: postId,
     content,
-    anon_token: crypto.randomUUID(),
+    anon_token: session.memberHash,
     is_anonymous: isAnonymous,
     author_name: publicName(isAnonymous, session.name),
     author_student_id: session.studentId ?? null,

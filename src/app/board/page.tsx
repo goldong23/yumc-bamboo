@@ -152,10 +152,12 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
               const liked = session
                 ? postReactions.some((reaction) => reaction.anon_token === session.memberHash)
                 : false;
+              const isMyPost = Boolean(session && post.anon_token === session.memberHash);
 
               return (
                 <article className="post-card board-card" key={post.id}>
                   <div className="post-meta">
+                    {isMyPost && <span className="my-badge">내 글</span>}
                     <span>{categoryLabels[post.category] ?? post.category}</span>
                     <span>{publicAuthor(post.is_anonymous, post.author_name)}</span>
                     <time>{formatDate(post.published_at ?? post.created_at)}</time>
@@ -180,15 +182,21 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
                   </div>
 
                   <div className="comment-list">
-                    {postComments.map((comment) => (
-                      <div className="comment-item" key={comment.id}>
-                        <div className="comment-meta">
-                          <span>{publicAuthor(comment.is_anonymous, comment.author_name)}</span>
-                          <time>{formatDate(comment.created_at)}</time>
+                    {postComments.map((comment) => {
+                      const isMyComment = Boolean(
+                        session && comment.anon_token === session.memberHash
+                      );
+                      return (
+                        <div className="comment-item" key={comment.id}>
+                          <div className="comment-meta">
+                            {isMyComment && <span className="my-badge">내 댓글</span>}
+                            <span>{publicAuthor(comment.is_anonymous, comment.author_name)}</span>
+                            <time>{formatDate(comment.created_at)}</time>
+                          </div>
+                          <p>{comment.content}</p>
                         </div>
-                        <p>{comment.content}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {session ? (
