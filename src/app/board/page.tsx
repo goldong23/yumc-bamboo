@@ -177,6 +177,9 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
                       </span>
                     )}
                     <span>댓글 {postComments.length}</span>
+                    <Link className="post-permalink" href={`/post/${post.id}`}>
+                      permalink
+                    </Link>
                   </div>
 
                   <div className="comment-list">
