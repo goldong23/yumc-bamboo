@@ -292,6 +292,33 @@ textarea:focus {
   color: var(--danger);
 }
 
+.char-counter {
+  margin: 0;
+  text-align: right;
+  font-size: 0.8rem;
+  color: #58715f;
+}
+
+.char-counter.warning {
+  color: #b45309;
+}
+
+.char-counter.danger {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.pinned-badge {
+  background: #1d5b32;
+  color: #fff8e5;
+}
+.form-success {
+  margin: 0;
+  background: #eef7e7;
+  border: 1px solid rgba(47, 125, 50, 0.22);
+  color: #1d5b32;
+}
+
 .setup-note {
   margin: 0 0 18px;
   background: rgba(238, 247, 231, 0.92);
@@ -608,9 +635,6 @@ legend {
   gap: 12px;
 }
 
-.board-list {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
 
 .post-card,
 .admin-post-card,
@@ -804,6 +828,20 @@ legend {
   font-weight: 700;
 }
 
+.post-permalink {
+  margin-left: auto;
+  color: #8aab8f;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.detail-card {
+  max-width: 720px;
+}
+
 .admin-nav,
 .admin-actions {
   gap: 10px;
@@ -811,7 +849,7 @@ legend {
 
 .admin-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 18px;
   align-items: start;
 }
@@ -882,6 +920,12 @@ legend {
   .paper-top,
   .admin-columns {
     grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 600px) and (max-width: 920px) {
+    .admin-columns {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   .writer-head,

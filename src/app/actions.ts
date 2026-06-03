@@ -183,7 +183,7 @@ export async function submitComment(
   }
 
   revalidatePath("/board");
-  return { message: "" };
+  return { message: "success" };
 }
 
 export async function setPostLike(formData: FormData) {
@@ -246,7 +246,6 @@ export async function setPostLike(formData: FormData) {
 
 export async function signOutAdmin() {
   await clearAdminSession();
-  await clearMemberSession();
   revalidatePath("/");
   revalidatePath("/board");
   revalidatePath("/admin");
