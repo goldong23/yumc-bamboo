@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getMemberSession } from "@/lib/session";
 import { CommentForm } from "@/components/comment-form";
 import { LikeButton } from "@/components/like-button";
-import type { Comment, Reaction } from "@/types/database";
+import type { Comment, Post, Reaction } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,36 @@ const categoryLabels: Record<string, string> = {
   event: "행사/모임",
   suggestion: "건의사항",
 };
+
+type PostData = {
+  post: Post;
+  comments: Comment[];
+  reactions: Reaction[];
+} | null;
+
+function getCachedPostData(id: string) {
+  return unstable_cache(
+    async (): Promise<PostData> => {
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return null;
+      }
+      const supabase = createAdminClient();
+      const [postResult, commentsResult, reactionsResult] = await Promise.all([
+        supabase.from("posts").select("*").eq("id", id).eq("status", "published").maybeSingle(),
+        supabase.from("comments").select("*").eq("post_id", id).order("created_at", { ascending: true }),
+        supabase.from("reactions").select("*").eq("target_type", "post").eq("target_id", id),
+      ]);
+      if (!postResult.data) return null;
+      return {
+        post: postResult.data,
+        comments: commentsResult.data ?? [],
+        reactions: reactionsResult.data ?? [],
+      };
+    },
+    [`post-data-${id}`],
+    { revalidate: 30, tags: ["posts"] }
+  )();
+}
 
 function formatDate(value: string | null) {
   if (!value) return "";
@@ -39,23 +70,14 @@ export default async function PostDetailPage({
 }) {
   const { id } = await params;
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    notFound();
-  }
-
-  const supabase = await createClient();
-  const [postResult, commentsResult, reactionsResult, session] = await Promise.all([
-    supabase.from("posts").select("*").eq("id", id).eq("status", "published").maybeSingle(),
-    supabase.from("comments").select("*").eq("post_id", id).order("created_at", { ascending: true }),
-    supabase.from("reactions").select("*").eq("target_type", "post").eq("target_id", id),
+  const [cached, session] = await Promise.all([
+    getCachedPostData(id),
     getMemberSession(),
   ]);
 
-  const post = postResult.data;
-  if (!post) notFound();
+  if (!cached) notFound();
 
-  const comments: Comment[] = commentsResult.data ?? [];
-  const reactions: Reaction[] = reactionsResult.data ?? [];
+  const { post, comments, reactions } = cached;
   const liked = session
     ? reactions.some((r) => r.anon_token === session.memberHash)
     : false;
