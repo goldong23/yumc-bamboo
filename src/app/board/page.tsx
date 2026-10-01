@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getMemberSession } from "@/lib/session";
 import { CommentForm } from "@/components/comment-form";
 import { LikeButton } from "@/components/like-button";
@@ -43,49 +44,55 @@ function normalizeCategoryFilter(category?: string) {
   return category && category in categoryLabels ? category : "all";
 }
 
-async function getBoardData(category: string): Promise<BoardData> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return { posts: [], comments: [], reactions: [] };
-  }
+function getCachedBoardData(category: string) {
+  return unstable_cache(
+    async (): Promise<BoardData> => {
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return { posts: [], comments: [], reactions: [] };
+      }
 
-  const supabase = await createClient();
-  let postsQuery = supabase
-    .from("posts")
-    .select("*")
-    .eq("status", "published");
+      const supabase = createAdminClient();
+      let postsQuery = supabase
+        .from("posts")
+        .select("*")
+        .eq("status", "published");
 
-  if (category !== "all") {
-    postsQuery = postsQuery.eq("category", category);
-  }
+      if (category !== "all") {
+        postsQuery = postsQuery.eq("category", category);
+      }
 
-  const postsResult = await postsQuery
-    .order("is_pinned", { ascending: false })
-    .order("published_at", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .limit(40);
+      const postsResult = await postsQuery
+        .order("is_pinned", { ascending: false })
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(40);
 
-  const posts = postsResult.data ?? [];
-  if (!posts.length) return { posts, comments: [], reactions: [] };
+      const posts = postsResult.data ?? [];
+      if (!posts.length) return { posts, comments: [], reactions: [] };
 
-  const postIds = posts.map((post) => post.id);
-  const [commentsResult, reactionsResult] = await Promise.all([
-    supabase
-      .from("comments")
-      .select("*")
-      .in("post_id", postIds)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("reactions")
-      .select("*")
-      .eq("target_type", "post")
-      .in("target_id", postIds),
-  ]);
+      const postIds = posts.map((post) => post.id);
+      const [commentsResult, reactionsResult] = await Promise.all([
+        supabase
+          .from("comments")
+          .select("*")
+          .in("post_id", postIds)
+          .order("created_at", { ascending: true }),
+        supabase
+          .from("reactions")
+          .select("*")
+          .eq("target_type", "post")
+          .in("target_id", postIds),
+      ]);
 
-  return {
-    posts,
-    comments: commentsResult.data ?? [],
-    reactions: reactionsResult.data ?? [],
-  };
+      return {
+        posts,
+        comments: commentsResult.data ?? [],
+        reactions: reactionsResult.data ?? [],
+      };
+    },
+    [`board-data-${category}`],
+    { revalidate: 30, tags: ["posts"] }
+  )();
 }
 
 function formatDate(value: string | null) {
@@ -112,7 +119,7 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
     redirect("/");
   }
 
-  const { posts, comments, reactions } = await getBoardData(activeCategory);
+  const { posts, comments, reactions } = await getCachedBoardData(activeCategory);
 
   return (
     <main className="board-page">
